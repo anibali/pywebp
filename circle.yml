@@ -1,0 +1,12 @@
+machine:
+  services:
+    - docker
+
+dependencies:
+  override:
+    - docker info
+    - docker build --rm=false -t pywebp-test .
+
+test:
+  override:
+    - docker run --rm pywebp-test ./setup.py test

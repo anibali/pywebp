@@ -1,5 +1,8 @@
 # WebP Python bindings
 
+[![CircleCI](https://img.shields.io/circleci/project/github/anibali/pywebp.svg)](https://circleci.com/gh/anibali/pywebp)
+[![PyPI](https://img.shields.io/pypi/dm/webp.svg)](https://pypi.python.org/pypi/webp)
+
 ## Usage
 
 ### Writing a PIL image to a WebP file

@@ -61,5 +61,9 @@ RUN curl -sLo libwebp-0.6.0.tar.gz \
  && cd .. \
  && rm -rf libwebp-0.6.0
 
+# Copy project files into the image
+COPY . /app
+RUN sudo chown -R user:user /app
+
 # Set the default command to python3
 CMD ["python3"]
