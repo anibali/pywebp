@@ -1,0 +1,9 @@
+version: '2'
+services:
+  python:
+    build: .
+    volumes:
+      - .:/app
+      - ~/.pypirc:/home/user/.pypirc:ro
+    environment:
+      - PYTHONIOENCODING=utf_8

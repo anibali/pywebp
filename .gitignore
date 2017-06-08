@@ -1,0 +1,17 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary files
+*.swp
+*~
+
+# Core dumps
+core
+
+# Project-specific ignores
+/build/
+/dist/
+/*.egg-info/
+*.so
