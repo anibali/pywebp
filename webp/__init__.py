@@ -55,7 +55,7 @@ class WebPConfig:
     return lib.WebPValidateConfig(self.ptr) != 0
 
   @staticmethod
-  def new(preset=WebPPreset.DEFAULT, quality=90, lossless=False):
+  def new(preset=WebPPreset.DEFAULT, quality=75, lossless=False):
     ptr = ffi.new('WebPConfig*')
     if lib.WebPConfigPreset(ptr, preset.value, quality) == 0:
       raise WebPError('failed to load config from preset')
@@ -401,3 +401,105 @@ class WebPAnimDecoder:
     if lib.WebPAnimDecoderGetInfo(ptr, anim_info.ptr) == 0:
       raise WebPError('failed to get animation info')
     return WebPAnimDecoder(ptr, dec_opts, anim_info)
+
+def save_image(img, file_path, quality=75, lossless=False):
+  """Encode PIL Image with WebP and save to file.
+
+  Args:
+    img (pil.Image): Image to save.
+    file_path (str): File to save to.
+    quality (float): Quality (0-100, where 0 is lowest quality).
+    lossless (bool): Set to True for lossless compression.
+  """
+
+  pic = WebPPicture.from_pil(img)
+  config = WebPConfig.new(quality=quality, lossless=lossless)
+  buf = pic.encode(config).buffer()
+
+  with open(file_path, 'wb') as f:
+    f.write(buf)
+
+def load_image(file_path, mode='RGBA'):
+  """Load from file and decode PIL Image with WebP.
+
+  Args:
+    file_path (str): File to load from.
+    mode (str): Mode for the PIL image (RGBA, RGBa, or RGB).
+
+  Returns:
+    PIL.Image: The decoded Image.
+  """
+
+  if mode == 'RGBA':
+    color_mode = WebPColorMode.RGBA
+  elif mode == 'RGBa':
+    color_mode = WebPColorMode.rgbA
+  elif mode == 'RGB':
+    color_mode = WebPColorMode.RGB
+  else:
+    raise WebPError('unsupported color mode: ' + mode)
+
+  with open(file_path, 'rb') as f:
+    webp_data = WebPData.from_buffer(f.read())
+    arr = webp_data.decode(color_mode=color_mode)
+    img = Image.fromarray(arr, mode)
+  return img
+
+def save_images(imgs, file_path, fps=30, quality=75, lossless=False):
+  """Encode a sequence of PIL Images with WebP and save to file.
+
+  Args:
+    imgs (list of pil.Image): Images to save.
+    file_path (str): File to save to.
+    fps (float): Animation speed in frames per second.
+    quality (float): Quality (0-100, where 0 is lowest quality).
+    lossless (bool): Set to True for lossless compression.
+  """
+
+  pics = [WebPPicture.from_pil(img) for img in imgs]
+
+  enc_opts = WebPAnimEncoderOptions.new()
+  enc = WebPAnimEncoder.new(imgs[0].width, imgs[0].height, enc_opts)
+  config = WebPConfig.new(quality=quality, lossless=lossless)
+  for i, pic in enumerate(pics):
+    t = round((i * 1000) / fps)
+    enc.encode_frame(pic, t, config)
+  end_t = round((len(pics) * 1000) / fps)
+  anim_data = enc.assemble(end_t)
+
+  with open(file_path, 'wb') as f:
+    f.write(anim_data.buffer())
+
+def load_images(file_path, mode='RGBA', use_threads=True):
+  """Load from file and decode a sequence of PIL Images with WebP.
+
+  Args:
+    file_path (str): File to load from.
+    mode (str): Mode for the PIL image (RGBA, RGBa, or RGB).
+    use_threads (str): Set to False to disable multi-threaded decoding.
+
+  Returns:
+    list of PIL.Image: The decoded Images.
+  """
+
+  if mode == 'RGBA':
+    color_mode = WebPColorMode.RGBA
+  elif mode == 'RGBa':
+    color_mode = WebPColorMode.rgbA
+  elif mode == 'RGB':
+    # NOTE: RGB decoding of animations is currently not supported by
+    # libwebpdemux. Hence we will read RGBA and remove the alpha channel later.
+    color_mode = WebPColorMode.RGBA
+  else:
+    raise WebPError('unsupported color mode: ' + mode)
+  imgs = []
+  with open(file_path, 'rb') as f:
+    webp_data = WebPData.from_buffer(f.read())
+    dec_opts = WebPAnimDecoderOptions.new(
+      use_threads=use_threads, color_mode=color_mode)
+    dec = WebPAnimDecoder.new(webp_data, dec_opts)
+    for arr, t in dec.frames():
+      if mode == 'RGB':
+        arr = arr[:, :, 0:3]
+      imgs.append(Image.fromarray(arr, mode))
+  return imgs

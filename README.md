@@ -5,29 +5,58 @@
 [![PyPI](https://img.shields.io/pypi/dm/webp.svg)](https://pypi.python.org/pypi/webp)
 [![GitHub](https://img.shields.io/badge/github-anibali%2Fpywebp-blue.svg)](https://github.com/anibali/pywebp)
 
+## Installation
+
+```sh
+pip install webp
+```
+
+### Requirements
+
+* [libwebp](https://github.com/webmproject/libwebp) (tested with v0.6.0)
+  - Install libwebpmux and libwebpdemux components as well.
+  - Check out the Dockerfile for steps to build from source on Ubuntu.
+* Python 3 (tested with v3.6)
+* cffi (tested with 1.10.0)
+* Pillow (tested with v4.1.1)
+* numpy (tested with v1.12.1)
+
 ## Usage
 
-### Writing a PIL image to a WebP file
-
 ```python
-pic = webp.WebPPicture.from_pil(img)
-buf = pic.encode().buffer()
-
-with open('image.webp', 'wb') as f:
-  f.write(buf)
+import webp
 ```
 
-### Reading a WebP file to a numpy array
+### Simple API
 
 ```python
+# Save an image
+webp.save_image(img, 'image.webp', quality=80)
+
+# Load an image
+img = webp.load_image('image.webp', 'RGBA')
+
+# Save an animation
+webp.save_images(imgs, 'anim.webp', fps=10, lossless=True)
+
+# Load an animation
+imgs = webp.load_images('anim.webp', 'RGB')
+```
+
+### Advanced API
+
+```python
+# Encode a PIL image to WebP in memory, with encoder hints
+pic = webp.WebPPicture.from_pil(img)
+config = WebPConfig.new(preset=webp.WebPPreset.PHOTO, quality=70)
+buf = pic.encode(config).buffer()
+
+# Read a WebP file and decode to a BGR numpy array
 with open('image.webp', 'rb') as f:
   webp_data = webp.WebPData.from_buffer(f.read())
-  arr = webp_data.decode() # Defaults to RGBA
-```
+  arr = webp_data.decode(color_mode=WebPColorMode.BGR)
 
-### Writing an animation
-
-```python
+# Save an animation
 enc = webp.WebPAnimEncoder.new(width, height)
 timestamp_ms = 0
 for img in imgs:
@@ -35,14 +64,10 @@ for img in imgs:
   enc.encode_frame(pic, timestamp_ms)
   timestamp_ms += 250
 anim_data = enc.assemble(timestamp_ms)
-
 with open('anim.webp', 'wb') as f:
   f.write(anim_data.buffer())
-```
 
-### Reading an animation
-
-```python
+# Load an animation
 with open('anim.webp', 'rb') as f:
   webp_data = webp.WebPData.from_buffer(f.read())
   dec = webp.WebPAnimDecoder.new(webp_data)
@@ -52,19 +77,12 @@ with open('anim.webp', 'rb') as f:
     pass
 ```
 
-## Requirements
-
-* Python 3 (tested with v3.6)
-* libwebp, libwebpmux, libwebpdemux (tested with v0.6.0)
-* Pillow (tested with v4.1.1)
-* numpy (tested with v1.12.1)
-
 ## Features
 
-* Still image encoding/decoding
+* Picture encoding/decoding
 * Animation encoding/decoding
 * Automatic memory management
-* Support for `PIL.Image` and `numpy.array` objects
+* Simple API for working with `PIL.Image` objects
 
 ### Not implemented
 

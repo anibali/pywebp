@@ -16,7 +16,7 @@ except:
 
 setup(
   name='webp',
-  version='0.1.0a4',
+  version='0.1.0a5',
   url='https://github.com/anibali/pywebp',
   packages=find_packages(),
   author='Aiden Nibali',
