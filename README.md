@@ -1,7 +1,9 @@
 # WebP Python bindings
 
 [![CircleCI](https://img.shields.io/circleci/project/github/anibali/pywebp.svg)](https://circleci.com/gh/anibali/pywebp)
+[![license](https://img.shields.io/github/license/anibali/pywebp.svg)](https://github.com/anibali/pywebp/blob/master/LICENSE)
 [![PyPI](https://img.shields.io/pypi/dm/webp.svg)](https://pypi.python.org/pypi/webp)
+[![GitHub](https://img.shields.io/badge/github-anibali%2Fpywebp-blue.svg)](https://github.com/anibali/pywebp)
 
 ## Usage
 

@@ -61,6 +61,11 @@ RUN curl -sLo libwebp-0.6.0.tar.gz \
  && cd .. \
  && rm -rf libwebp-0.6.0
 
+# Install pypandoc (for generating PyPI package long description)
+RUN conda install -y --name py36 -c bjornfjohansson \
+    pypandoc=1.4 \
+ && conda clean -ya
+
 # Copy project files into the image
 COPY . /app
 RUN sudo chown -R user:user /app
