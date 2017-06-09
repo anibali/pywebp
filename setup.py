@@ -16,10 +16,9 @@ except:
 
 setup(
   name='webp',
-  version='0.1.0a3',
+  version='0.1.0a4',
   url='https://github.com/anibali/pywebp',
   packages=find_packages(),
-  package_data={'': ['README.md', 'LICENSE']},
   author='Aiden Nibali',
   description='Python bindings for WebP',
   license='MIT',
