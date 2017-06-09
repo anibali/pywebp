@@ -16,14 +16,21 @@ except:
 
 setup(
   name='webp',
-  version='0.1.0a2',
+  version='0.1.0a3',
+  url='https://github.com/anibali/pywebp',
   packages=find_packages(),
   package_data={'': ['README.md', 'LICENSE']},
   author='Aiden Nibali',
   description='Python bindings for WebP',
+  license='MIT',
   long_description=long_description,
   test_suite='setup.all_tests',
   setup_requires=['cffi>=1.0.0'],
   cffi_modules=['webp/webp_build.py:ffibuilder'],
   install_requires=['cffi>=1.0.0', 'Pillow>=4.0.0', 'numpy>=1.0.0'],
+  classifiers=[
+    'Development Status :: 3 - Alpha',
+    'Topic :: Multimedia :: Graphics :: Graphics Conversion',
+    'License :: OSI Approved :: MIT License',
+  ]
 )
