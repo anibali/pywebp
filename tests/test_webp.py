@@ -26,7 +26,8 @@ class TestWebP(unittest.TestCase):
     draw.rectangle([0, 0, 7, 15], fill=(255, 0, 0))
 
     pic = webp.WebPPicture.from_pil(img)
-    buf = pic.encode().buffer()
+    config = webp.WebPConfig.new(lossless=True)
+    buf = pic.encode(config).buffer()
 
     with TemporaryDirectory() as tmpdir:
       file_name = os.path.join(tmpdir, 'image.webp')
@@ -38,7 +39,7 @@ class TestWebP(unittest.TestCase):
         arr = webp_data.decode(color_mode=webp.WebPColorMode.RGB)
 
         expected = np.asarray(img, dtype=np.uint8)
-        np.testing.assert_allclose(arr, expected, atol=50)
+        np.testing.assert_array_equal(arr, expected)
 
   def test_anim(self):
     imgs = []
@@ -75,7 +76,7 @@ class TestWebP(unittest.TestCase):
         self.assertEqual(dec.anim_info.frame_count, 4)
         for i, (arr, t) in enumerate(dec.frames()):
           expected = np.asarray(imgs[i], dtype=np.uint8)
-          np.testing.assert_allclose(arr, expected, atol=50)
+          np.testing.assert_array_equal(arr, expected)
 
   def test_anim_simple(self):
     imgs = []
@@ -99,7 +100,7 @@ class TestWebP(unittest.TestCase):
       for dec_img, img in zip(dec_imgs, imgs):
         actual = np.asarray(dec_img, dtype=np.uint8)
         expected = np.asarray(img, dtype=np.uint8)
-        np.testing.assert_allclose(actual, expected, atol=80)
+        np.testing.assert_array_equal(actual, expected)
 
   def test_image_simple(self):
     width = 256
@@ -117,4 +118,4 @@ class TestWebP(unittest.TestCase):
 
       actual = np.asarray(dec_img, dtype=np.uint8)
       expected = np.asarray(img, dtype=np.uint8)
-      np.testing.assert_allclose(actual, expected, atol=80)
+      np.testing.assert_array_equal(actual, expected)

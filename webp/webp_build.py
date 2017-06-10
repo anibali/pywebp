@@ -69,6 +69,7 @@ ffibuilder.cdef("""
   typedef int (*WebPWriterFunction)(const uint8_t* data, size_t data_size, const WebPPicture* picture);
 
   struct WebPPicture {
+    int use_argb;
     int width;
     int height;
     WebPWriterFunction writer;
@@ -178,8 +179,8 @@ ffibuilder.cdef("""
 
   int WebPPictureInit(WebPPicture* picture);
   int WebPPictureAlloc(WebPPicture* picture);
-  int WebPPictureImportRGB(WebPPicture* picture, const uint8_t* rgbx,
-    int rgbx_stride);
+  int WebPPictureImportRGB(WebPPicture* picture, const uint8_t* rgb,
+    int rgb_stride);
   int WebPPictureImportRGBA(WebPPicture* picture, const uint8_t* rgba,
     int rgba_stride);
   void WebPPictureFree(WebPPicture* picture);

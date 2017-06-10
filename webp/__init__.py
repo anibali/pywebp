@@ -204,6 +204,7 @@ class WebPPicture:
     arr = np.asarray(img, dtype=np.uint8)
     pixels = ffi.cast('uint8_t*', ffi.from_buffer(arr))
     stride = img.width * bytes_per_pixel
+    ptr.use_argb = 1
     if import_func(ptr, pixels, stride) == 0:
       raise WebPError('memory error')
     return WebPPicture(ptr)
