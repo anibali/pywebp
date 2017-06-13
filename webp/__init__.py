@@ -471,12 +471,15 @@ def save_images(imgs, file_path, fps=30, quality=75, lossless=False):
   with open(file_path, 'wb') as f:
     f.write(anim_data.buffer())
 
-def load_images(file_path, mode='RGBA', use_threads=True):
+def load_images(file_path, mode='RGBA', fps=None, use_threads=True):
   """Load from file and decode a sequence of PIL Images with WebP.
 
   Args:
     file_path (str): File to load from.
     mode (str): Mode for the PIL image (RGBA, RGBa, or RGB).
+    fps (int, optional): Frames will be evenly sampled to meet this particular
+      FPS. If `fps` is None, an ordered sequence of unique frames in the
+      animation will be returned.
     use_threads (str): Set to False to disable multi-threaded decoding.
 
   Returns:
@@ -493,14 +496,25 @@ def load_images(file_path, mode='RGBA', use_threads=True):
     color_mode = WebPColorMode.RGBA
   else:
     raise WebPError('unsupported color mode: ' + mode)
+
   imgs = []
+
   with open(file_path, 'rb') as f:
     webp_data = WebPData.from_buffer(f.read())
     dec_opts = WebPAnimDecoderOptions.new(
       use_threads=use_threads, color_mode=color_mode)
     dec = WebPAnimDecoder.new(webp_data, dec_opts)
-    for arr, t in dec.frames():
+    eps = 1e-7
+    if fps is not None:
+      ft = 1000 / fps # Duration of one frame in ms
+
+    for arr, frame_end_time in dec.frames():
       if mode == 'RGB':
         arr = arr[:, :, 0:3]
-      imgs.append(Image.fromarray(arr, mode))
+      if fps is None:
+        imgs.append(Image.fromarray(arr, mode))
+      else:
+        while len(imgs) * ft + eps < frame_end_time:
+          imgs.append(Image.fromarray(arr, mode))
+
   return imgs

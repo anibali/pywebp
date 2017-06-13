@@ -40,7 +40,7 @@ img = webp.load_image('image.webp', 'RGBA')
 webp.save_images(imgs, 'anim.webp', fps=10, lossless=True)
 
 # Load an animation
-imgs = webp.load_images('anim.webp', 'RGB')
+imgs = webp.load_images('anim.webp', 'RGB', fps=10)
 ```
 
 ### Advanced API
@@ -89,3 +89,10 @@ with open('anim.webp', 'rb') as f:
 * Encoding/decoding still images in YUV color mode
 * Advanced muxing/demuxing (color profiles, etc.)
 * Expose all useful fields
+
+## Known issues
+
+* An animation where all frames are identical will "collapse" in on itself,
+  resulting in a single frame. Unfortunately, WebP seems to discard timestamp
+  information in this case, which breaks `webp.load_images` when the FPS
+  is specified.
