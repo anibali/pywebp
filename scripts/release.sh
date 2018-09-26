@@ -7,4 +7,4 @@ cd "$(dirname "${BASH_SOURCE[0]}")/../"
 scripts/clean.sh
 
 # Package and upload to PyPI
-docker-compose run --rm python ./setup.py sdist upload
+./setup.py sdist upload
