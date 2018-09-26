@@ -7,6 +7,10 @@ __pycache__/
 *.swp
 *~
 
+# IDE configuration
+.idea/
+.vscode/
+
 # Core dumps
 core
 
