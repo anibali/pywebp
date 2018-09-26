@@ -1,5 +1,36 @@
+import json
+from os import path, getcwd
 from cffi import FFI
+import tempfile
+
+from conans.client import conan_api
+from conans.build_info.conan_build_info import get_build_info
+
+
+extra_objects = []
+include_dirs = []
+libraries = []
+with tempfile.TemporaryDirectory() as tmp_dir:
+  conan, _, _ = conan_api.ConanAPIV1.factory()
+  conan.install(path=getcwd(), cwd=tmp_dir)
+
+  # https://dmerej.info/blog/post/chuck-norris-part-5-python-cffi/
+  with open(path.join(tmp_dir, "conanbuildinfo.json"), "r") as f:
+    conan_info = json.load(f)
+  for dep in conan_info["dependencies"]:
+    for lib_name in dep["libs"]:
+      lib_filename = "lib%s.a" % lib_name
+      for lib_path in dep["lib_paths"]:
+        candidate = path.join(lib_path, lib_filename)
+        if path.isfile(candidate):
+          extra_objects.append(candidate)
+        else:
+          libraries.append(lib_name)
+    for include_path in dep["include_paths"]:
+        include_dirs.append(include_path)
+
 ffibuilder = FFI()
+
 
 ffibuilder.set_source("_webp",
   r"""
@@ -20,7 +51,10 @@ ffibuilder.set_source("_webp",
     }
     #endif
   """,
-  libraries=['webp', 'webpdemux', 'webpmux'])
+  extra_objects=extra_objects,
+  include_dirs=include_dirs,
+  libraries=libraries,
+)
 
 ffibuilder.cdef("""
   typedef enum WebPPreset {
