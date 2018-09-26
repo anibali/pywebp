@@ -1,0 +1,10 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: python:3.6
+    steps:
+      - checkout
+      - run: pip install -r requirements.txt
+      - run: python3 setup.py build
+      - run: python3 setup.py test

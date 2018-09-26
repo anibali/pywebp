@@ -18,7 +18,7 @@ setup(
   license='MIT',
   long_description=long_description,
   test_suite='tests',
-  setup_requires=['cffi>=1.0.0'],
+  setup_requires=['cffi>=1.0.0', 'conan>=1.7.4,<1.8.0'],
   cffi_modules=['webp/webp_build.py:ffibuilder'],
   install_requires=['cffi>=1.0.0', 'Pillow>=4.0.0', 'numpy>=1.0.0'],
   classifiers=[

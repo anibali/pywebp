@@ -1,0 +1,5 @@
+[requires]
+libwebp/1.0.0@bincrafters/stable
+
+[generators]
+json

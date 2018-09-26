@@ -2,7 +2,6 @@
 
 [![CircleCI](https://img.shields.io/circleci/project/github/anibali/pywebp.svg)](https://circleci.com/gh/anibali/pywebp)
 [![license](https://img.shields.io/github/license/anibali/pywebp.svg)](https://github.com/anibali/pywebp/blob/master/LICENSE)
-[![PyPI](https://img.shields.io/pypi/dm/webp.svg)](https://pypi.python.org/pypi/webp)
 [![GitHub](https://img.shields.io/badge/github-anibali%2Fpywebp-blue.svg)](https://github.com/anibali/pywebp)
 
 ## Installation
@@ -13,7 +12,7 @@ pip install webp
 
 ### Requirements
 
-* [libwebp](https://github.com/webmproject/libwebp) (tested with v0.6.0)
+* [libwebp](https://github.com/webmproject/libwebp) (tested with v1.0.0)
   - Install libwebpmux and libwebpdemux components as well.
   - Check out the Dockerfile for steps to build from source on Ubuntu.
 * Python 3 (tested with v3.6)
@@ -89,6 +88,16 @@ with open('anim.webp', 'rb') as f:
 * Encoding/decoding still images in YUV color mode
 * Advanced muxing/demuxing (color profiles, etc.)
 * Expose all useful fields
+
+## Developer notes
+
+### Running tests
+
+The CircleCI local CLI should be used to run tests in an isolated environment:
+
+```bash
+$ circleci execute --job test
+```
 
 ## Known issues
 
