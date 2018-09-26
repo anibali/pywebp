@@ -2,6 +2,7 @@ import json
 from os import path, getcwd
 from cffi import FFI
 import tempfile
+import platform
 
 from conans.client import conan_api
 from conans.build_info.conan_build_info import get_build_info
@@ -19,7 +20,10 @@ with tempfile.TemporaryDirectory() as tmp_dir:
     conan_info = json.load(f)
   for dep in conan_info["dependencies"]:
     for lib_name in dep["libs"]:
-      lib_filename = "lib%s.a" % lib_name
+      if platform.system() == "Windows":
+        lib_filename = "%s.lib" % lib_name
+      else:
+        lib_filename = "lib%s.a" % lib_name
       for lib_path in dep["lib_paths"]:
         candidate = path.join(lib_path, lib_filename)
         if path.isfile(candidate):
