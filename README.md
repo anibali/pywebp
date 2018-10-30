@@ -96,7 +96,7 @@ with open('anim.webp', 'rb') as f:
 The CircleCI local CLI should be used to run tests in an isolated environment:
 
 ```bash
-$ circleci execute --job test
+$ circleci local execute
 ```
 
 ## Known issues
