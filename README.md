@@ -42,6 +42,9 @@ webp.save_images(imgs, 'anim.webp', fps=10, lossless=True)
 imgs = webp.load_images('anim.webp', 'RGB', fps=10)
 ```
 
+If you prefer working with numpy arrays, use the functions `imwrite`, `imread`, `mimwrite`,
+and `mimread` instead.
+
 ### Advanced API
 
 ```python
