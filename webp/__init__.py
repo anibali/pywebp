@@ -195,29 +195,37 @@ class WebPPicture:
         return WebPPicture(ptr)
 
     @staticmethod
-    def from_pil(img):
+    def from_numpy(arr, *, pilmode=None):
         ptr = ffi.new('WebPPicture*')
         if lib.WebPPictureInit(ptr) == 0:
             raise WebPError('version mismatch')
-        ptr.width = img.width
-        ptr.height = img.height
+        ptr.height, ptr.width, bytes_per_pixel = arr.shape
 
-        if img.mode == 'RGB':
-            import_func = lib.WebPPictureImportRGB
-            bytes_per_pixel = 3
-        elif img.mode == 'RGBA':
-            import_func = lib.WebPPictureImportRGBA
-            bytes_per_pixel = 4
+        if pilmode is None:
+            if bytes_per_pixel == 3:
+                import_func = lib.WebPPictureImportRGB
+            elif bytes_per_pixel == 4:
+                import_func = lib.WebPPictureImportRGBA
+            else:
+                raise WebPError('cannot infer color mode from array of shape ' + repr(arr.shape))
         else:
-            raise WebPError('unsupported image mode: ' + img.mode)
+            if pilmode == 'RGB':
+                import_func = lib.WebPPictureImportRGB
+            elif pilmode == 'RGBA':
+                import_func = lib.WebPPictureImportRGBA
+            else:
+                raise WebPError('unsupported image mode: ' + pilmode)
 
-        arr = np.asarray(img, dtype=np.uint8)
         pixels = ffi.cast('uint8_t*', ffi.from_buffer(arr))
-        stride = img.width * bytes_per_pixel
+        stride = ptr.width * bytes_per_pixel
         ptr.use_argb = 1
         if import_func(ptr, pixels, stride) == 0:
             raise WebPError('memory error')
         return WebPPicture(ptr)
+
+    @staticmethod
+    def from_pil(img):
+        return WebPPicture.from_numpy(np.asarray(img), pilmode=img.mode)
 
 
 class WebPDecoderConfig:
@@ -421,22 +429,130 @@ class WebPAnimDecoder:
         return WebPAnimDecoder(ptr, dec_opts, anim_info)
 
 
-def save_image(img, file_path, quality=75, lossless=False):
-    """Encode PIL Image with WebP and save to file.
+def imwrite(file_path, arr, *, quality=75, lossless=False, pilmode=None):
+    """Encode numpy array image with WebP and save to file.
 
     Args:
-        img (pil.Image): Image to save.
         file_path (str): File to save to.
+        arr (np.ndarray): Image data to save.
         quality (int): Quality (0-100, where 0 is lowest quality).
         lossless (bool): Set to True for lossless compression.
     """
 
-    pic = WebPPicture.from_pil(img)
+    pic = WebPPicture.from_numpy(arr, pilmode=pilmode)
     config = WebPConfig.new(quality=quality, lossless=lossless)
     buf = pic.encode(config).buffer()
 
     with open(file_path, 'wb') as f:
         f.write(buf)
+
+
+def imread(file_path, *, pilmode='RGBA'):
+    """Load from file and decode numpy array with WebP.
+
+    Args:
+        file_path (str): File to load from.
+        pilmode (str): Image color mode (RGBA, RGBa, or RGB).
+
+    Returns:
+        np.ndarray: The decoded image data.
+    """
+    if pilmode == 'RGBA':
+        color_mode = WebPColorMode.RGBA
+    elif pilmode == 'RGBa':
+        color_mode = WebPColorMode.rgbA
+    elif pilmode == 'RGB':
+        color_mode = WebPColorMode.RGB
+    else:
+        raise WebPError('unsupported color mode: ' + pilmode)
+
+    with open(file_path, 'rb') as f:
+        webp_data = WebPData.from_buffer(f.read())
+        arr = webp_data.decode(color_mode=color_mode)
+    return arr
+
+
+def mimwrite(file_path, arrs, *, fps=30, quality=75, lossless=False, pilmode=None):
+    """Encode a sequence of PIL Images with WebP and save to file.
+
+    Args:
+        file_path (str): File to save to.
+        imgs (list of np.ndarray): Image data to save.
+        fps (float): Animation speed in frames per second.
+        quality (int): Quality (0-100, where 0 is lowest quality).
+        lossless (bool): Set to True for lossless compression.
+    """
+    pics = [WebPPicture.from_numpy(arr, pilmode=pilmode) for arr in arrs]
+
+    enc_opts = WebPAnimEncoderOptions.new()
+    enc = WebPAnimEncoder.new(pics[0].ptr.width, pics[0].ptr.height, enc_opts)
+    config = WebPConfig.new(quality=quality, lossless=lossless)
+    for i, pic in enumerate(pics):
+        t = round((i * 1000) / fps)
+        enc.encode_frame(pic, t, config)
+    end_t = round((len(pics) * 1000) / fps)
+    anim_data = enc.assemble(end_t)
+
+    with open(file_path, 'wb') as f:
+        f.write(anim_data.buffer())
+
+
+def mimread(file_path, *, fps=None, use_threads=True, pilmode='RGBA'):
+    """Load from file and decode a list of numpy arrays with WebP.
+
+    Args:
+        file_path (str): File to load from.
+        pilmode (str): Image color mode (RGBA, RGBa, or RGB).
+        fps (int, optional): Frames will be evenly sampled to meet this particular
+            FPS. If `fps` is None, an ordered sequence of unique frames in the
+            animation will be returned.
+        use_threads (bool): Set to False to disable multi-threaded decoding.
+
+    Returns:
+        list of np.ndarray: The decoded image data.
+    """
+
+    if pilmode == 'RGBA':
+        color_mode = WebPColorMode.RGBA
+    elif pilmode == 'RGBa':
+        color_mode = WebPColorMode.rgbA
+    elif pilmode == 'RGB':
+        # NOTE: RGB decoding of animations is currently not supported by
+        # libwebpdemux. Hence we will read RGBA and remove the alpha channel later.
+        color_mode = WebPColorMode.RGBA
+    else:
+        raise WebPError('unsupported color mode: ' + pilmode)
+
+    arrs = []
+
+    with open(file_path, 'rb') as f:
+        webp_data = WebPData.from_buffer(f.read())
+        dec_opts = WebPAnimDecoderOptions.new(
+            use_threads=use_threads, color_mode=color_mode)
+        dec = WebPAnimDecoder.new(webp_data, dec_opts)
+        eps = 1e-7
+
+        for arr, frame_end_time in dec.frames():
+            if pilmode == 'RGB':
+                arr = arr[:, :, 0:3]
+            if fps is None:
+                arrs.append(arr)
+            else:
+                while len(arrs) * (1000 / fps) + eps < frame_end_time:
+                    arrs.append(arr)
+
+    return arrs
+
+
+def save_image(img, file_path, **kwargs):
+    """Encode PIL Image with WebP and save to file.
+
+    Args:
+        img (pil.Image): Image to save.
+        file_path (str): File to save to.
+        kwargs: Keyword arguments for saving the image (see `imwrite`).
+    """
+    imwrite(file_path, np.asarray(img), pilmode=img.mode, **kwargs)
 
 
 def load_image(file_path, mode='RGBA'):
@@ -449,91 +565,32 @@ def load_image(file_path, mode='RGBA'):
     Returns:
         PIL.Image: The decoded Image.
     """
-
-    if mode == 'RGBA':
-        color_mode = WebPColorMode.RGBA
-    elif mode == 'RGBa':
-        color_mode = WebPColorMode.rgbA
-    elif mode == 'RGB':
-        color_mode = WebPColorMode.RGB
-    else:
-        raise WebPError('unsupported color mode: ' + mode)
-
-    with open(file_path, 'rb') as f:
-        webp_data = WebPData.from_buffer(f.read())
-        arr = webp_data.decode(color_mode=color_mode)
-        img = Image.fromarray(arr, mode)
-    return img
+    arr = imread(file_path, pilmode=mode)
+    return Image.fromarray(arr, mode)
 
 
-def save_images(imgs, file_path, fps=30, quality=75, lossless=False):
+def save_images(imgs, file_path, **kwargs):
     """Encode a sequence of PIL Images with WebP and save to file.
 
     Args:
         imgs (list of pil.Image): Images to save.
         file_path (str): File to save to.
-        fps (float): Animation speed in frames per second.
-        quality (int): Quality (0-100, where 0 is lowest quality).
-        lossless (bool): Set to True for lossless compression.
+        kwargs: Keyword arguments for saving the images (see `mimwrite`).
     """
-
-    pics = [WebPPicture.from_pil(img) for img in imgs]
-
-    enc_opts = WebPAnimEncoderOptions.new()
-    enc = WebPAnimEncoder.new(imgs[0].width, imgs[0].height, enc_opts)
-    config = WebPConfig.new(quality=quality, lossless=lossless)
-    for i, pic in enumerate(pics):
-        t = round((i * 1000) / fps)
-        enc.encode_frame(pic, t, config)
-    end_t = round((len(pics) * 1000) / fps)
-    anim_data = enc.assemble(end_t)
-
-    with open(file_path, 'wb') as f:
-        f.write(anim_data.buffer())
+    arrs = [np.asarray(img) for img in imgs]
+    return mimwrite(file_path, arrs, **kwargs, pilmode=imgs[0].mode)
 
 
-def load_images(file_path, mode='RGBA', fps=None, use_threads=True):
+def load_images(file_path, mode='RGBA', **kwargs):
     """Load from file and decode a sequence of PIL Images with WebP.
 
     Args:
         file_path (str): File to load from.
         mode (str): Mode for the PIL image (RGBA, RGBa, or RGB).
-        fps (int, optional): Frames will be evenly sampled to meet this particular
-            FPS. If `fps` is None, an ordered sequence of unique frames in the
-            animation will be returned.
-        use_threads (bool): Set to False to disable multi-threaded decoding.
+        kwargs: Keyword arguments for loading the images (see `mimread`).
 
     Returns:
         list of PIL.Image: The decoded Images.
     """
-
-    if mode == 'RGBA':
-        color_mode = WebPColorMode.RGBA
-    elif mode == 'RGBa':
-        color_mode = WebPColorMode.rgbA
-    elif mode == 'RGB':
-        # NOTE: RGB decoding of animations is currently not supported by
-        # libwebpdemux. Hence we will read RGBA and remove the alpha channel later.
-        color_mode = WebPColorMode.RGBA
-    else:
-        raise WebPError('unsupported color mode: ' + mode)
-
-    imgs = []
-
-    with open(file_path, 'rb') as f:
-        webp_data = WebPData.from_buffer(f.read())
-        dec_opts = WebPAnimDecoderOptions.new(
-            use_threads=use_threads, color_mode=color_mode)
-        dec = WebPAnimDecoder.new(webp_data, dec_opts)
-        eps = 1e-7
-
-        for arr, frame_end_time in dec.frames():
-            if mode == 'RGB':
-                arr = arr[:, :, 0:3]
-            if fps is None:
-                imgs.append(Image.fromarray(arr, mode))
-            else:
-                while len(imgs) * (1000 / fps) + eps < frame_end_time:
-                    imgs.append(Image.fromarray(arr, mode))
-
-    return imgs
+    arrs = mimread(file_path, pilmode=mode, **kwargs)
+    return [Image.fromarray(arr, mode) for arr in arrs]
