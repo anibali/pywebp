@@ -79,6 +79,11 @@ class TestWebP(unittest.TestCase):
                     expected = np.asarray(imgs[i], dtype=np.uint8)
                     np.testing.assert_array_equal(arr, expected)
 
+    def test_default_enc_opts(self):
+        enc = webp.WebPAnimEncoder.new(64, 64)
+        self.assertFalse(enc.enc_opts.minimize_size)
+        self.assertFalse(enc.enc_opts.allow_mixed)
+
     def test_anim_simple(self):
         imgs = []
         width = 256

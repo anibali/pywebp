@@ -319,7 +319,9 @@ class WebPAnimEncoder:
         return _webp_data.done()
 
     @staticmethod
-    def new(width, height, enc_opts):
+    def new(width, height, enc_opts=None):
+        if enc_opts is None:
+            enc_opts = WebPAnimEncoderOptions.new()
         ptr = lib.WebPAnimEncoderNew(width, height, enc_opts.ptr)
         return WebPAnimEncoder(ptr, enc_opts)
 
