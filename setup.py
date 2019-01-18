@@ -8,7 +8,7 @@ def get_long_description():
     try:
         import pypandoc
         long_description = pypandoc.convert('README.md', 'rst')
-    except ModuleNotFoundError:
+    except ImportError:
         long_description = open('README.md').read()
     return long_description
 
