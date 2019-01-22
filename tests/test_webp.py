@@ -150,3 +150,6 @@ class TestWebP(unittest.TestCase):
             actual = np.asarray(dec_img, dtype=np.uint8)
             expected = np.asarray(img, dtype=np.uint8)
             np.testing.assert_array_equal(actual, expected)
+
+if __name__ == '__main__':
+    unittest.main()
