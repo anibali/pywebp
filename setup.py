@@ -15,7 +15,7 @@ def get_long_description():
 
 setup(
     name='webp',
-    version='0.1.0a12',
+    version='0.1.0a13',
     url='https://github.com/anibali/pywebp',
     packages=find_packages(include=['webp', 'webp.*', 'webp_build']),
     package_data={'webp_build': ['*.h', '*.c']},
