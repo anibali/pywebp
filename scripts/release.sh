@@ -7,4 +7,5 @@ cd "$(dirname "${BASH_SOURCE[0]}")/../"
 scripts/clean.sh
 
 # Package and upload to PyPI
-./setup.py sdist upload
+./setup.py sdist
+twine upload dist/webp-*.tar.gz
