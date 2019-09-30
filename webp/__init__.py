@@ -199,7 +199,13 @@ class WebPPicture:
         ptr = ffi.new('WebPPicture*')
         if lib.WebPPictureInit(ptr) == 0:
             raise WebPError('version mismatch')
-        ptr.height, ptr.width, bytes_per_pixel = arr.shape
+
+        if len(arr.shape) == 3:
+            bytes_per_pixel = arr.shape[-1]
+        elif len(arr.shape) == 2:
+            bytes_per_pixel = 1
+        else:
+            raise WebPError('unexpected array shape: ' + repr(arr.shape))
 
         if pilmode is None:
             if bytes_per_pixel == 3:
@@ -216,6 +222,7 @@ class WebPPicture:
             else:
                 raise WebPError('unsupported image mode: ' + pilmode)
 
+        ptr.height, ptr.width = arr.shape[:2]
         pixels = ffi.cast('uint8_t*', ffi.from_buffer(arr))
         stride = ptr.width * bytes_per_pixel
         ptr.use_argb = 1

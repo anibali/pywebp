@@ -151,5 +151,21 @@ class TestWebP(unittest.TestCase):
             expected = np.asarray(img, dtype=np.uint8)
             np.testing.assert_array_equal(actual, expected)
 
+    def test_greyscale_save_image(self):
+        width = 256
+        height = 64
+        img1 = Image.new('P', (width, height))
+        with TemporaryDirectory() as tmpdir:
+            file_name = os.path.join(tmpdir, 'image.webp')
+            with self.assertRaises(webp.WebPError) as context:
+                webp.save_image(img1, file_name)
+            self.assertEqual(str(context.exception), 'unsupported image mode: P')
+
+    def test_picture_from_bad_array_shape(self):
+        with self.assertRaises(webp.WebPError) as context:
+            webp.WebPPicture.from_numpy(np.ones([2, 2, 2, 2]))
+        self.assertEqual(str(context.exception), 'unexpected array shape: (2, 2, 2, 2)')
+
+
 if __name__ == '__main__':
     unittest.main()
