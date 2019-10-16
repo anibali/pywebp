@@ -5,8 +5,8 @@ from setuptools import setup, find_packages
 
 setup(
     name='webp',
-    version='0.1.15',
-    url='https://github.com/anibali/pywebp',
+    version='0.1.0a15',
+    url='https://github.com/numb3r3/pywebp',
     packages=find_packages(include=['webp', 'webp.*', 'webp_build']),
     package_data={'webp_build': ['*.h', '*.c']},
     author='Aiden Nibali',
