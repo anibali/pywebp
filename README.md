@@ -2,7 +2,8 @@
 
 [![CircleCI](https://img.shields.io/circleci/project/github/anibali/pywebp.svg)](https://circleci.com/gh/anibali/pywebp)
 [![license](https://img.shields.io/github/license/anibali/pywebp.svg)](https://github.com/anibali/pywebp/blob/master/LICENSE)
-[![GitHub](https://img.shields.io/badge/github-anibali%2Fpywebp-blue.svg)](https://github.com/anibali/pywebp)
+[![PyPI](https://img.shields.io/pypi/v/webp)](https://pypi.org/project/webp/)
+[![GitHub](https://img.shields.io/github/stars/anibali/pywebp?style=social)](https://github.com/anibali/pywebp)
 
 ## Installation
 
