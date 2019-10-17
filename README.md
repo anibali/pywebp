@@ -12,7 +12,7 @@ pip install webp
 
 ### Requirements
 
-* [libwebp](https://github.com/webmproject/libwebp) (tested with v1.0.0)
+* [libwebp](https://github.com/webmproject/libwebp) (tested with v1.0.3)
   - Install libwebpmux and libwebpdemux components as well.
   - Check out the Dockerfile for steps to build from source on Ubuntu.
 * Python 3 (tested with v3.6)
