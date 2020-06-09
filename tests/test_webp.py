@@ -1,14 +1,15 @@
 import os
-import unittest
 from tempfile import TemporaryDirectory
 
 import numpy as np
+import pytest
 from PIL import Image, ImageDraw
+from numpy.testing import assert_array_equal
 
 import webp
 
 
-class TestWebP(unittest.TestCase):
+class TestWebP:
     def test_WebPConfig(self):
         config = webp.WebPConfig.new(webp.WebPPreset.DRAWING, 50)
         del config
@@ -40,7 +41,7 @@ class TestWebP(unittest.TestCase):
                 arr = webp_data.decode(color_mode=webp.WebPColorMode.RGB)
 
                 expected = np.asarray(img, dtype=np.uint8)
-                np.testing.assert_array_equal(arr, expected)
+                assert_array_equal(arr, expected)
 
     def test_anim(self):
         imgs = []
@@ -74,15 +75,15 @@ class TestWebP(unittest.TestCase):
                 webp_data = webp.WebPData.from_buffer(f.read())
                 dec_opts = webp.WebPAnimDecoderOptions.new()
                 dec = webp.WebPAnimDecoder.new(webp_data, dec_opts)
-                self.assertEqual(dec.anim_info.frame_count, 4)
+                assert dec.anim_info.frame_count == 4
                 for i, (arr, t) in enumerate(dec.frames()):
                     expected = np.asarray(imgs[i], dtype=np.uint8)
-                    np.testing.assert_array_equal(arr, expected)
+                    assert_array_equal(arr, expected)
 
     def test_default_enc_opts(self):
         enc = webp.WebPAnimEncoder.new(64, 64)
-        self.assertFalse(enc.enc_opts.minimize_size)
-        self.assertFalse(enc.enc_opts.allow_mixed)
+        assert enc.enc_opts.minimize_size == False
+        assert enc.enc_opts.allow_mixed == False
 
     def test_anim_simple(self):
         imgs = []
@@ -102,11 +103,11 @@ class TestWebP(unittest.TestCase):
             webp.save_images(imgs, file_name, fps=4, lossless=True)
             dec_imgs = webp.load_images(file_name, 'RGBA')
 
-            self.assertEqual(len(dec_imgs), 4)
+            assert len(dec_imgs) == 4
             for dec_img, img in zip(dec_imgs, imgs):
                 actual = np.asarray(dec_img, dtype=np.uint8)
                 expected = np.asarray(img, dtype=np.uint8)
-                np.testing.assert_array_equal(actual, expected)
+                assert_array_equal(actual, expected)
 
     # WebP combines adjacent duplicate frames and adjusts timestamps
     # accordingly, resulting in unevenly spaced frames. By specifying the fps
@@ -131,7 +132,7 @@ class TestWebP(unittest.TestCase):
             webp.save_images(imgs, file_name, fps=4, lossless=True)
             dec_imgs = webp.load_images(file_name, 'RGBA', fps=4)
 
-            self.assertEqual(len(dec_imgs), 4)
+            assert len(dec_imgs) == 4
 
     def test_image_simple(self):
         width = 256
@@ -149,23 +150,58 @@ class TestWebP(unittest.TestCase):
 
             actual = np.asarray(dec_img, dtype=np.uint8)
             expected = np.asarray(img, dtype=np.uint8)
-            np.testing.assert_array_equal(actual, expected)
+            assert_array_equal(actual, expected)
+
+    def test_image_palette(self, image_bars_palette):
+        with TemporaryDirectory() as tmpdir:
+            file_name = os.path.join(tmpdir, 'image.webp')
+
+            assert image_bars_palette.mode == 'P'
+            webp.save_image(image_bars_palette, file_name, lossless=True)
+            dec_img = webp.load_image(file_name, 'RGBA')
+
+            actual = np.asarray(dec_img, dtype=np.uint8)
+            image_bars_rgba = image_bars_palette.convert('RGBA')
+            expected = np.asarray(image_bars_rgba, dtype=np.uint8)
+            assert_array_equal(actual, expected)
+
+    def test_image_palette_opaque(self, image_bars_palette_opaque):
+        with TemporaryDirectory() as tmpdir:
+            file_name = os.path.join(tmpdir, 'image.webp')
+
+            assert image_bars_palette_opaque.mode == 'P'
+            webp.save_image(image_bars_palette_opaque, file_name, lossless=True)
+            dec_img = webp.load_image(file_name, 'RGB')
+
+            actual = np.asarray(dec_img, dtype=np.uint8)
+            image_bars_rgb = image_bars_palette_opaque.convert('RGB')
+            expected = np.asarray(image_bars_rgb, dtype=np.uint8)
+            assert_array_equal(actual, expected)
+
+    def test_anim_image_palette(self, image_bars_palette):
+        with TemporaryDirectory() as tmpdir:
+            file_name = os.path.join(tmpdir, 'image.webp')
+
+            assert image_bars_palette.mode == 'P'
+            webp.save_images([image_bars_palette] * 3, file_name, lossless=True)
+            dec_imgs = webp.load_images(file_name, 'RGBA')
+
+            actual = np.asarray(dec_imgs[0], dtype=np.uint8)
+            image_bars_rgba = image_bars_palette.convert('RGBA')
+            expected = np.asarray(image_bars_rgba, dtype=np.uint8)
+            assert_array_equal(actual, expected)
 
     def test_greyscale_save_image(self):
         width = 256
         height = 64
-        img1 = Image.new('P', (width, height))
+        img1 = Image.new('L', (width, height))
         with TemporaryDirectory() as tmpdir:
             file_name = os.path.join(tmpdir, 'image.webp')
-            with self.assertRaises(webp.WebPError) as context:
+            with pytest.raises(webp.WebPError) as ex_info:
                 webp.save_image(img1, file_name)
-            self.assertEqual(str(context.exception), 'unsupported image mode: P')
+            assert str(ex_info.value) == 'unsupported image mode: L'
 
     def test_picture_from_bad_array_shape(self):
-        with self.assertRaises(webp.WebPError) as context:
+        with pytest.raises(webp.WebPError) as ex_info:
             webp.WebPPicture.from_numpy(np.ones([2, 2, 2, 2]))
-        self.assertEqual(str(context.exception), 'unexpected array shape: (2, 2, 2, 2)')
-
-
-if __name__ == '__main__':
-    unittest.main()
+        assert str(ex_info.value) == 'unexpected array shape: (2, 2, 2, 2)'

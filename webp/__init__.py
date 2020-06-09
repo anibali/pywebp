@@ -61,6 +61,16 @@ class WebPConfig:
 
     @staticmethod
     def new(preset=WebPPreset.DEFAULT, quality=75, lossless=False):
+        """Create a new WebPConfig instance to describe encoder settings.
+
+        Args:
+            preset (WebPPreset):
+            quality (int): Quality (0-100, where 0 is lowest quality).
+            lossless (bool): Set to True for lossless compression.
+
+        Returns:
+            WebPConfig: The new WebPConfig instance.
+        """
         ptr = ffi.new('WebPConfig*')
         if lib.WebPConfigPreset(ptr, preset.value, quality) == 0:
             raise WebPError('failed to load config from preset')
@@ -183,6 +193,11 @@ class WebPPicture:
             raise WebPError('encoding error: ' + self.ptr.error_code)
         return writer.to_webp_data()
 
+    def save(self, file_path, config=None):
+        buf = self.encode(config).buffer()
+        with open(file_path, 'wb') as f:
+            f.write(buf)
+
     @staticmethod
     def new(width, height):
         ptr = ffi.new('WebPPicture*')
@@ -232,6 +247,11 @@ class WebPPicture:
 
     @staticmethod
     def from_pil(img):
+        if img.mode == 'P':
+            if 'transparency' in img.info:
+                img = img.convert('RGBA')
+            else:
+                img = img.convert('RGB')
         return WebPPicture.from_numpy(np.asarray(img), pilmode=img.mode)
 
 
@@ -438,22 +458,18 @@ class WebPAnimDecoder:
         return WebPAnimDecoder(ptr, dec_opts, anim_info)
 
 
-def imwrite(file_path, arr, *, quality=75, lossless=False, pilmode=None):
+def imwrite(file_path, arr, *, pilmode=None, **kwargs):
     """Encode numpy array image with WebP and save to file.
 
     Args:
         file_path (str): File to save to.
         arr (np.ndarray): Image data to save.
-        quality (int): Quality (0-100, where 0 is lowest quality).
-        lossless (bool): Set to True for lossless compression.
+        pilmode (str): PIL image mode corresponding to the data in `arr`.
+        kwargs: Keyword arguments for encoder settings (see `WebPConfig.new`).
     """
-
     pic = WebPPicture.from_numpy(arr, pilmode=pilmode)
-    config = WebPConfig.new(quality=quality, lossless=lossless)
-    buf = pic.encode(config).buffer()
-
-    with open(file_path, 'wb') as f:
-        f.write(buf)
+    config = WebPConfig.new(**kwargs)
+    pic.save(file_path, config)
 
 
 def imread(file_path, *, pilmode='RGBA'):
@@ -481,21 +497,10 @@ def imread(file_path, *, pilmode='RGBA'):
     return arr
 
 
-def mimwrite(file_path, arrs, *, fps=30, quality=75, lossless=False, pilmode=None):
-    """Encode a sequence of PIL Images with WebP and save to file.
-
-    Args:
-        file_path (str): File to save to.
-        imgs (list of np.ndarray): Image data to save.
-        fps (float): Animation speed in frames per second.
-        quality (int): Quality (0-100, where 0 is lowest quality).
-        lossless (bool): Set to True for lossless compression.
-    """
-    pics = [WebPPicture.from_numpy(arr, pilmode=pilmode) for arr in arrs]
-
+def _mimwrite_pics(file_path, pics, *, fps=30.0, **kwargs):
     enc_opts = WebPAnimEncoderOptions.new()
     enc = WebPAnimEncoder.new(pics[0].ptr.width, pics[0].ptr.height, enc_opts)
-    config = WebPConfig.new(quality=quality, lossless=lossless)
+    config = WebPConfig.new(**kwargs)
     for i, pic in enumerate(pics):
         t = round((i * 1000) / fps)
         enc.encode_frame(pic, t, config)
@@ -506,13 +511,26 @@ def mimwrite(file_path, arrs, *, fps=30, quality=75, lossless=False, pilmode=Non
         f.write(anim_data.buffer())
 
 
+def mimwrite(file_path, arrs, *, fps=30.0, pilmode=None, **kwargs):
+    """Encode a sequence of PIL Images with WebP and save to file.
+
+    Args:
+        file_path (str): File to save to.
+        imgs (list of np.ndarray): Image data to save.
+        fps (float): Animation speed in frames per second.
+        kwargs: Keyword arguments for encoder settings (see `WebPConfig.new`).
+    """
+    pics = [WebPPicture.from_numpy(arr, pilmode=pilmode) for arr in arrs]
+    _mimwrite_pics(file_path, pics, fps=fps, **kwargs)
+
+
 def mimread(file_path, *, fps=None, use_threads=True, pilmode='RGBA'):
     """Load from file and decode a list of numpy arrays with WebP.
 
     Args:
         file_path (str): File to load from.
         pilmode (str): Image color mode (RGBA, RGBa, or RGB).
-        fps (int, optional): Frames will be evenly sampled to meet this particular
+        fps (float, optional): Frames will be evenly sampled to meet this particular
             FPS. If `fps` is None, an ordered sequence of unique frames in the
             animation will be returned.
         use_threads (bool): Set to False to disable multi-threaded decoding.
@@ -559,9 +577,11 @@ def save_image(img, file_path, **kwargs):
     Args:
         img (pil.Image): Image to save.
         file_path (str): File to save to.
-        kwargs: Keyword arguments for saving the image (see `imwrite`).
+        kwargs: Keyword arguments for encoder settings (see `WebPConfig.new`).
     """
-    imwrite(file_path, np.asarray(img), pilmode=img.mode, **kwargs)
+    pic = WebPPicture.from_pil(img)
+    config = WebPConfig.new(**kwargs)
+    pic.save(file_path, config)
 
 
 def load_image(file_path, mode='RGBA'):
@@ -586,8 +606,8 @@ def save_images(imgs, file_path, **kwargs):
         file_path (str): File to save to.
         kwargs: Keyword arguments for saving the images (see `mimwrite`).
     """
-    arrs = [np.asarray(img) for img in imgs]
-    return mimwrite(file_path, arrs, **kwargs, pilmode=imgs[0].mode)
+    pics = [WebPPicture.from_pil(img) for img in imgs]
+    _mimwrite_pics(file_path, pics, **kwargs)
 
 
 def load_images(file_path, mode='RGBA', **kwargs):
