@@ -14,6 +14,7 @@ setup(
     license='MIT',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
+    zip_safe=True,
     test_suite='tests',
     setup_requires=['cffi>=1.0.3', 'conan>=1.8.0', 'importlib_resources>=1.0.0'],
     cffi_modules=['webp_build/builder.py:ffibuilder'],
