@@ -17,9 +17,9 @@ pip install webp
   - Install libwebpmux and libwebpdemux components as well.
   - Check out the Dockerfile for steps to build from source on Ubuntu.
 * Python 3 (tested with v3.6)
-* cffi (tested with 1.10.0)
-* Pillow (tested with v4.1.1)
-* numpy (tested with v1.12.1)
+* cffi
+* Pillow
+* numpy
 
 ## Usage
 
