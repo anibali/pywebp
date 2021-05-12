@@ -16,7 +16,7 @@ setup(
     long_description_content_type='text/markdown',
     zip_safe=True,
     test_suite='tests',
-    setup_requires=['cffi>=1.0.0', 'conan>=1.8.0', 'importlib_resources>=1.0.0'],
+    setup_requires=['wheel', 'cffi>=1.0.0', 'conan>=1.8.0', 'importlib_resources>=1.0.0'],
     cffi_modules=['webp_build/builder.py:ffibuilder'],
     install_requires=['cffi>=1.0.0', 'Pillow>=4.0.0', 'numpy>=1.0.0'],
     classifiers=[
