@@ -99,8 +99,31 @@ with open('anim.webp', 'rb') as f:
 
 The CircleCI local CLI should be used to run tests in an isolated environment:
 
-```bash
+```console
 $ circleci local execute
+```
+
+### Cutting releases
+
+Source release:
+
+```console
+$ python setup.py sdist
+$ twine upload dist/webp-*.tar.gz
+```
+
+Linux binary wheel release (repeat for different Python versions and architectures):
+
+```console
+$ docker run -i -t -v `pwd`:/io quay.io/pypa/manylinux2014_x86_64 /bin/bash
+# cd io
+# /opt/python/cp36-cp36m/bin/python setup.py bdist_wheel
+# /opt/python/cp36-cp36m/bin/pip install dist/webp-*-cp36-cp36m-linux_x86_64.whl
+# /opt/python/cp36-cp36m/bin/pip install pytest
+# /opt/python/cp36-cp36m/bin/pytest tests
+# auditwheel repair dist/webp-*-cp36-cp36m-linux_x86_64.whl -w dist
+# exit
+$ twine upload dist/webp-*-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
 ```
 
 ## Known issues

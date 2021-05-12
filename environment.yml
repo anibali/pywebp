@@ -2,7 +2,7 @@ name: webp
 channels:
   - defaults
 dependencies:
-  - pip=19.2.3
+  - pip=19.3.1
   - pytest=5.4.3
   - python=3.6.9
   - pip:
