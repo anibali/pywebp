@@ -11,6 +11,15 @@
 pip install webp
 ```
 
+On Windows you may encounter the following error during installation:
+
+```
+conans.errors.ConanException: 'settings.compiler' value not defined
+```
+
+This means that you need to install a C compiler and configure Conan so that it knows which
+compiler to use. See https://github.com/anibali/pywebp/issues/20 for more details.
+
 ### Requirements
 
 * [libwebp](https://github.com/webmproject/libwebp) (tested with v1.0.3)
