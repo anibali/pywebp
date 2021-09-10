@@ -1,9 +1,7 @@
 name: webp
-channels:
-  - defaults
 dependencies:
+  - python=3.6.9
   - pip=19.3.1
   - pytest=5.4.3
-  - python=3.6.9
   - pip:
     - -r requirements.txt
