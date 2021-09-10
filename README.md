@@ -117,7 +117,8 @@ $ circleci local execute
 Source release:
 
 ```console
-$ python setup.py sdist
+$ pip install build twine
+$ python -m build --sdist
 $ twine upload dist/webp-*.tar.gz
 ```
 

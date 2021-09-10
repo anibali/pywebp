@@ -7,6 +7,8 @@ from cffi import FFI
 from conans.client import conan_api
 from importlib_resources import read_text
 
+import webp_build
+
 conan, _, _ = conan_api.ConanAPIV1.factory()
 
 # Use Conan to install libwebp
@@ -38,12 +40,12 @@ for dep in conan_info['dependencies']:
 ffibuilder = FFI()
 ffibuilder.set_source(
     '_webp',
-    read_text('webp_build', 'source.c'),
+    read_text(webp_build, 'source.c'),
     extra_objects=extra_objects,
     include_dirs=include_dirs,
     libraries=libraries,
 )
-ffibuilder.cdef(read_text('webp_build', 'cdef.h'))
+ffibuilder.cdef(read_text(webp_build, 'cdef.h'))
 
 
 if __name__ == '__main__':

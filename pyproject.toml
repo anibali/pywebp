@@ -1,0 +1,10 @@
+[build-system]
+# Synchronise with `setup_requirements` in `setup.cfg`
+requires = [
+    "setuptools>=40.8.0",
+    "wheel",
+    "cffi>=1.0.0",
+    "conan>=1.8.0",
+    "importlib_resources>=1.0.0",
+]
+build-backend = "setuptools.build_meta"

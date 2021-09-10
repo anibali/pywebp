@@ -5,7 +5,8 @@ jobs:
       - image: python:3.6
     steps:
       - checkout
-      - run: python3 setup.py sdist
+      - run: pip3 install build
+      - run: python3 -m build --sdist
       - run: pip3 install dist/webp-*.tar.gz
-      - run: pip install pytest==5.4.3
+      - run: pip3 install pytest==5.4.3
       - run: pytest tests/
