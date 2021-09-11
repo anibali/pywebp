@@ -1,7 +1,7 @@
 # WebP Python bindings
 
-[![CircleCI](https://img.shields.io/circleci/project/github/anibali/pywebp.svg)](https://circleci.com/gh/anibali/pywebp)
-[![license](https://img.shields.io/github/license/anibali/pywebp.svg)](https://github.com/anibali/pywebp/blob/master/LICENSE)
+[![Build status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fanibali%2Fpywebp%2Fbadge&label=build&logo=none)](https://actions-badge.atrox.dev/anibali/pywebp/goto)
+[![License](https://img.shields.io/github/license/anibali/pywebp.svg)](https://github.com/anibali/pywebp/blob/master/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/webp)](https://pypi.org/project/webp/)
 [![GitHub](https://img.shields.io/github/stars/anibali/pywebp?style=social)](https://github.com/anibali/pywebp)
 
