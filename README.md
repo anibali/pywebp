@@ -106,10 +106,8 @@ with open('anim.webp', 'rb') as f:
 
 ### Running tests
 
-The CircleCI local CLI should be used to run tests in an isolated environment:
-
 ```console
-$ circleci local execute
+$ pytest tests/
 ```
 
 ### Cutting releases
