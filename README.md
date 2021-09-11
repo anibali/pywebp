@@ -125,15 +125,8 @@ $ twine upload dist/webp-*.tar.gz
 Linux binary wheel release (repeat for different Python versions and architectures):
 
 ```console
-$ docker run -i -t -v `pwd`:/io quay.io/pypa/manylinux2014_x86_64 /bin/bash
-# cd io
-# /opt/python/cp36-cp36m/bin/python setup.py bdist_wheel
-# /opt/python/cp36-cp36m/bin/pip install dist/webp-*-cp36-cp36m-linux_x86_64.whl
-# /opt/python/cp36-cp36m/bin/pip install pytest==5.4.3
-# /opt/python/cp36-cp36m/bin/pytest tests
-# auditwheel repair dist/webp-*-cp36-cp36m-linux_x86_64.whl -w dist
-# exit
-$ twine upload dist/webp-*-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+$ docker run -it -v `pwd`:/io -w /io quay.io/pypa/manylinux2014_x86_64 ./build_manylinux_wheels.sh
+$ twine upload dist/webp-*-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
 ```
 
 ## Known issues
