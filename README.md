@@ -133,3 +133,5 @@ $ twine upload dist/webp-*-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
   resulting in a single frame. Unfortunately, WebP seems to discard timestamp
   information in this case, which breaks `webp.load_images` when the FPS
   is specified.
+* There are currently no 32-bit binaries of libwebp uploaded to Conan Center. If you are running
+  32-bit Python, libwebp will be built from source.
