@@ -110,22 +110,23 @@ with open('anim.webp', 'rb') as f:
 $ pytest tests/
 ```
 
-### Cutting releases
+### Cutting a new release
 
-Source release:
+1. Ensure that tests are passing and everything is ready for release.
+2. Create and push a Git tag:
+   ```console
+   $ git tag -a v0.1.4
+   $ git push --tags
+   ```
+3. Download the artifacts from GitHub Actions, which will include the source distribution tarball and binary wheels.
+4. Create a new release on GitHub from the tagged commit and upload the packages as attachments to the release.
+5. Also upload the packages to PyPI using Twine:
+   ```console
+   $ twine upload webp-*.tar.gz webp-*.whl
+   ```
+6. Bump the version number in `setup.cfg` and create a commit, signalling the start of development on the next version.
 
-```console
-$ pip3 install build twine
-$ python3 -m build --sdist
-$ twine upload dist/webp-*.tar.gz
-```
-
-Linux binary wheel release (repeat for different Python versions and architectures):
-
-```console
-$ docker run -it -v `pwd`:/io -w /io quay.io/pypa/manylinux2014_x86_64 ./build_manylinux_wheels.sh
-$ twine upload dist/webp-*-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-```
+These files should also be added to a GitHub release.
 
 ## Known issues
 
