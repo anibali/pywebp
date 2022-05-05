@@ -56,26 +56,48 @@ class WebPConfig:
     def quality(self, quality):
         self.ptr.quality = quality
 
+    @property
+    def method(self):
+        return self.ptr.method
+
+    @method.setter
+    def method(self, method):
+        self.ptr.method = method
+
     def validate(self):
         return lib.WebPValidateConfig(self.ptr) != 0
 
     @staticmethod
-    def new(preset=WebPPreset.DEFAULT, quality=75, lossless=False):
+    def new(preset=WebPPreset.DEFAULT, quality=None, lossless=False, level=None, method=None):
         """Create a new WebPConfig instance to describe encoder settings.
 
         Args:
-            preset (WebPPreset):
+            preset (WebPPreset): lossy preset.
             quality (int): Quality (0-100, where 0 is lowest quality).
             lossless (bool): Set to True for lossless compression.
+            level (int): Lossless level (0-9, where 0 is faster, 9 is smaller).
 
         Returns:
             WebPConfig: The new WebPConfig instance.
         """
         ptr = ffi.new('WebPConfig*')
-        if lib.WebPConfigPreset(ptr, preset.value, quality) == 0:
+        if lib.WebPConfigPreset(ptr, preset.value, quality if quality is not None else 75) == 0:
             raise WebPError('failed to load config from preset')
+
+        if level is not None:
+            if lossless:
+                if lib.WebPConfigLosslessPreset(ptr, level) == 0:
+                    raise WebPError('failed to load lossless config from preset')
+            else:
+                raise WebPError('level parameter requires lossless')
+
         config = WebPConfig(ptr)
         config.lossless = lossless
+        if quality is not None:
+            config.quality = quality
+        if method is not None:
+            config.method = method
+
         if not config.validate():
             raise WebPError('config is not valid')
         return config
