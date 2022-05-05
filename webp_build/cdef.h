@@ -109,6 +109,7 @@ typedef struct WebPDecoderConfig WebPDecoderConfig;
 struct WebPConfig {
   int lossless;
   float quality;
+  int method;
   ...;
 };
 typedef struct WebPConfig WebPConfig;
@@ -168,6 +169,7 @@ VP8StatusCode WebPDecode(const uint8_t* data, size_t data_size,
 void WebPFreeDecBuffer(WebPDecBuffer* buffer);
 
 int WebPConfigPreset(WebPConfig* config, WebPPreset preset, float quality);
+int WebPConfigLosslessPreset(WebPConfig* config, int level);
 int WebPValidateConfig(const WebPConfig* config);
 
 int WebPEncode(const WebPConfig* config, WebPPicture* picture);
