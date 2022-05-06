@@ -72,10 +72,11 @@ class WebPConfig:
         """Create a new WebPConfig instance to describe encoder settings.
 
         Args:
-            preset (WebPPreset): lossy preset.
+            preset (WebPPreset): predefined settings, depending on the type of source picture.
             quality (int): Quality (0-100, where 0 is lowest quality).
             lossless (bool): Set to True for lossless compression.
             level (int): Lossless level (0-9, where 0 is faster, 9 is smaller).
+            method (int): quality/speed trade-off (0=fast, 6=slower-better).
 
         Returns:
             WebPConfig: The new WebPConfig instance.
