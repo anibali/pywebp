@@ -37,6 +37,8 @@ class WebPError(Exception):
 
 
 class WebPConfig:
+    DEFAULT_QUALITY = 75.0
+
     def __init__(self, ptr):
         self.ptr = ptr
 
@@ -68,32 +70,49 @@ class WebPConfig:
         return lib.WebPValidateConfig(self.ptr) != 0
 
     @staticmethod
-    def new(preset=WebPPreset.DEFAULT, quality=None, lossless=False, level=None, method=None):
+    def new(preset=WebPPreset.DEFAULT, quality=None, lossless=False, lossless_preset=None,
+            method=None):
         """Create a new WebPConfig instance to describe encoder settings.
 
+        1. The preset is loaded, setting default values for quality factor (75.0) and compression
+           method (4).
+
+        2. If `lossless` is True and `lossless_preset` is specified, then the lossless preset with
+           the specified level is loaded. This will replace the default values for quality factor
+           and compression method.
+
+        3. Values for lossless, quality, and method are set using explicitly provided arguments.
+           This allows the caller to explicitly specify these settings and overrides settings from
+           presets.
+
         Args:
-            preset (WebPPreset): predefined settings, depending on the type of source picture.
-            quality (int): Quality (0-100, where 0 is lowest quality).
+            preset (WebPPreset): Preset setting.
+            quality (float, optional): Quality factor (0=small but low quality, 100=high quality
+                but big). Overrides presets. Effective default is 75.0.
             lossless (bool): Set to True for lossless compression.
-            level (int): Lossless level (0-9, where 0 is faster, 9 is smaller).
-            method (int): quality/speed trade-off (0=fast, 6=slower-better).
+            lossless_preset (int, optional): Lossless preset level (0=fast but big, 9=small but
+                slow). Can only be specified when `lossless` is true. Sets the values for quality
+                factor and compression method together. Effective default is 6.
+            method (int, optional): Compression method (0=fast but big, 6=small but slow).
+                Overrides presets. Effective default is 4.
 
         Returns:
             WebPConfig: The new WebPConfig instance.
         """
         ptr = ffi.new('WebPConfig*')
-        if lib.WebPConfigPreset(ptr, preset.value, quality if quality is not None else 75) == 0:
-            raise WebPError('failed to load config from preset')
+        if lib.WebPConfigPreset(ptr, preset.value, WebPConfig.DEFAULT_QUALITY) == 0:
+            raise WebPError('failed to load config options from preset')
 
-        if level is not None:
-            if lossless:
-                if lib.WebPConfigLosslessPreset(ptr, level) == 0:
-                    raise WebPError('failed to load lossless config from preset')
-            else:
-                raise WebPError('level parameter requires lossless')
+        if lossless_preset is not None:
+            if not lossless:
+                raise WebPError('can only use lossless preset when lossless is True')
+            if lib.WebPConfigLosslessPreset(ptr, lossless_preset) == 0:
+                raise WebPError('failed to load config options from lossless preset')
 
         config = WebPConfig(ptr)
         config.lossless = lossless
+
+        # Override presets for explicitly specified values.
         if quality is not None:
             config.quality = quality
         if method is not None:

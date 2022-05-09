@@ -10,19 +10,6 @@ import webp
 
 
 class TestWebP:
-    def test_WebPConfig(self):
-        config = webp.WebPConfig.new(webp.WebPPreset.DRAWING, 50)
-        assert config.lossless is False
-        assert config.quality == 50
-        del config
-
-    def test_WebPConfigLosslessPreset(self):
-        config = webp.WebPConfig.new(lossless=True, level=9)
-        assert config.lossless is True
-        assert config.quality == 100
-        assert config.method == 6
-        del config
-
     def test_WebPPicture(self):
         pic = webp.WebPPicture.new(32, 32)
         del pic
