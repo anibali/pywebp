@@ -22,13 +22,7 @@ compiler to use. See https://github.com/anibali/pywebp/issues/20 for more detail
 
 ### Requirements
 
-* [libwebp](https://github.com/webmproject/libwebp) (tested with v1.0.3)
-  - Install libwebpmux and libwebpdemux components as well.
-  - Check out the Dockerfile for steps to build from source on Ubuntu.
-* Python 3 (tested with v3.6)
-* cffi
-* Pillow
-* numpy
+* Python 3.6+
 
 ## Usage
 
@@ -104,6 +98,21 @@ with open('anim.webp', 'rb') as f:
 
 ## Developer notes
 
+### Setting up
+
+1. Install `mamba` and `conda-lock`. The easiest way to do this is by installing
+   [Mambaforge](https://github.com/conda-forge/miniforge#mambaforge) and then
+   running `mamba install conda-lock`. 
+2. Create and activate the Conda environment:
+   ```console
+   $ conda-lock install -n webp
+   $ mamba activate webp
+   ```
+3. Install PyPI dependencies:
+   ```console
+   $ poetry install
+   ```
+
 ### Running tests
 
 ```console
@@ -115,7 +124,7 @@ $ pytest tests/
 1. Ensure that tests are passing and everything is ready for release.
 2. Create and push a Git tag:
    ```console
-   $ git tag -a v0.1.4
+   $ git tag -a v0.1.5
    $ git push --tags
    ```
 3. Download the artifacts from GitHub Actions, which will include the source distribution tarball and binary wheels.
@@ -124,7 +133,7 @@ $ pytest tests/
    ```console
    $ twine upload webp-*.tar.gz webp-*.whl
    ```
-6. Bump the version number in `setup.cfg` and create a commit, signalling the start of development on the next version.
+6. Bump the version number in `pyproject.toml` and create a commit, signalling the start of development on the next version.
 
 These files should also be added to a GitHub release.
 

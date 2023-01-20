@@ -1,7 +1,9 @@
 name: webp
+channels:
+  - conda-forge
+  - nodefaults
 dependencies:
-  - python=3.6.13
-  - pip=21.2.2
-  - pytest=6.2.4
-  - pip:
-    - -r requirements.txt
+  - mamba
+  - pip
+  - poetry>=1.2.0
+  - python=3.8

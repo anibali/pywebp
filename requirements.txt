@@ -1,5 +1,0 @@
-cffi==1.15.0
-conan==1.46.2
-Pillow==8.4.0
-numpy==1.19.5
-importlib_resources==5.4.0
