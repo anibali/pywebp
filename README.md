@@ -124,7 +124,7 @@ $ pytest tests/
 1. Ensure that tests are passing and everything is ready for release.
 2. Create and push a Git tag:
    ```console
-   $ git tag -a v0.1.5
+   $ git tag v0.1.6
    $ git push --tags
    ```
 3. Download the artifacts from GitHub Actions, which will include the source distribution tarball and binary wheels.
