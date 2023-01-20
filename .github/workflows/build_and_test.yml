@@ -11,9 +11,9 @@ jobs:
     name: Build source distribution
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python 3.6
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: 3.6
       - name: Build source distribution
@@ -21,7 +21,7 @@ jobs:
           python -m pip install build
           python -m build --sdist
       - name: Upload source distribution
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: sdist-${{ github.sha }}
           path: ./dist/webp-*.tar.gz
@@ -32,14 +32,14 @@ jobs:
     needs: build-sdist
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Fetch source distribution
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: sdist-${{ github.sha }}
           path: dist/
       - name: Set up Python 3.6
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: 3.6
       - name: Install the package
@@ -61,13 +61,13 @@ jobs:
       CIBW_TEST_REQUIRES: pytest
       CIBW_TEST_COMMAND: pytest {package}/tests
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
       - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.3.1
+        run: python -m pip install cibuildwheel==2.12.0
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: wheels-${{ github.sha }}
           path: ./wheelhouse/*.whl
