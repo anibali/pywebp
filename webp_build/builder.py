@@ -5,7 +5,7 @@ from os import path, getcwd
 
 from cffi import FFI
 from conans.client import conan_api
-from importlib_resources import read_text
+from importlib.resources import read_text
 
 import webp_build
 

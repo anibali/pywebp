@@ -21,8 +21,8 @@ metadata:
     osx-64: c5f0d7ab032d7d319c178e601fdc96d7f3cd88293cb3a452f562f1d32134ddde
     win-64: 0a99a755b0bc5763d890c97e1826594481f6db09fcc0f2a8a8a06e5032599152
   platforms:
-  - osx-64
   - linux-64
+  - osx-64
   - win-64
   sources:
   - environment.yml

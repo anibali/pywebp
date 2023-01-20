@@ -22,7 +22,7 @@ compiler to use. See https://github.com/anibali/pywebp/issues/20 for more detail
 
 ### Requirements
 
-* Python 3.6+
+* Python 3.7+
 
 ## Usage
 
