@@ -22,13 +22,16 @@ include = [
     { path = "webp_build/**/*.c", format = "sdist" },
     { path = "webp_build/**/*.h", format = "sdist" },
 ]
-build = "build.py"
+
+[tool.poetry.build]
+script = "build.py"
+generate-setup-file = true
 
 [tool.poetry.dependencies]
 Pillow = ">=4.0.0"
 cffi = ">=1.0.0"
 numpy = ">=1.0.0"
-python = ">=3.7,<4.0"
+python = ">=3.8,<4.0"
 
 [tool.poetry.group.dev.dependencies]
 conan = ">=1.8.0,<2.0"
