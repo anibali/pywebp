@@ -1,11 +1,11 @@
 import json
 import platform
 import tempfile
+from importlib.resources import read_text
 from os import path, getcwd
 
 from cffi import FFI
 from conans.client import conan_api
-from importlib.resources import read_text
 
 import webp_build
 
@@ -18,7 +18,8 @@ with tempfile.TemporaryDirectory() as tmp_dir:
     print(f'platform.machine: {platform.machine()}')
     if platform.architecture()[0] == '32bit' and platform.machine().lower() in {'amd64', 'x86_64', 'x64'}:
         settings.append('arch=x86')
-    conan.install(path=getcwd(), cwd=tmp_dir, settings=settings, build=['missing'])
+    conan.install(path=getcwd(), cwd=tmp_dir, settings=settings, build=['missing'],
+                  profile_names=[path.abspath('conan_profile')])
     with open(path.join(tmp_dir, 'conanbuildinfo.json'), 'r') as f:
         conan_info = json.load(f)
 

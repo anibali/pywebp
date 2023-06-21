@@ -19,6 +19,7 @@ packages = [
 include = [
     { path = "build.py", format = "sdist" },
     { path = "conanfile.txt", format = "sdist" },
+    { path = "conan_profile", format = "sdist" },
     { path = "webp_build/**/*.c", format = "sdist" },
     { path = "webp_build/**/*.h", format = "sdist" },
 ]
