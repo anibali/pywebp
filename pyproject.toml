@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "webp"
-version = "0.1.6"
+version = "0.1.7"
 description = "Python bindings for WebP"
 license = "MIT"
 authors = ["Aiden Nibali <dismaldenizen@gmail.com>"]
