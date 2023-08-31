@@ -50,23 +50,62 @@ jobs:
 
   build-wheels:
     name: Build and test wheels on ${{ matrix.os }}
+    needs: build-sdist
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-2019, macos-11]
+        include:
+          - os: ubuntu-20.04
+            build: 'cp3*-manylinux_x86_64'
+          - os: windows-2019
+            build: 'cp3*-win_amd64'
+          - os: macos-11
+            build: 'cp3*-macosx_x86_64'
     steps:
-      - uses: actions/checkout@v3
+      - name: Fetch source distribution
+        uses: actions/download-artifact@v3
+        with:
+          name: sdist-${{ github.sha }}
+          path: dist/
+      - run: mv dist/webp-*.tar.gz webp.tar.gz
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.12.1
+        uses: pypa/cibuildwheel@v2.15.0
+        with:
+          package-dir: webp.tar.gz
+          output-dir: dist
         env:
-          SYSTEM_VERSION_COMPAT: '0'  # See https://github.com/pypa/cibuildwheel/issues/1410
-          CIBW_BUILD: 'cp3*-manylinux_x86_64 cp3*-win_amd64 cp3*-macosx_universal2'
-          CIBW_ARCHS_MACOS: 'universal2'  # Enable cross-compilation on macOS
-          CIBW_PROJECT_REQUIRES_PYTHON: '>=3.8,<4.0'
+          CIBW_BUILD: ${{ matrix.build }}
+          CIBW_PROJECT_REQUIRES_PYTHON: '>=3.9,<3.12'
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest {package}/tests
       - uses: actions/upload-artifact@v3
         with:
           name: wheels-${{ github.sha }}
-          path: ./wheelhouse/*.whl
+          path: ./dist/*.whl
+          retention-days: 7
+
+  build-wheels-macos-arm64:
+    name: Build arm64 wheels on macos
+    needs: build-sdist
+    runs-on: macos-11
+    steps:
+      - name: Fetch source distribution
+        uses: actions/download-artifact@v3
+        with:
+          name: sdist-${{ github.sha }}
+          path: dist/
+      - run: mv dist/webp-*.tar.gz webp.tar.gz
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.15.0
+        with:
+          package-dir: webp.tar.gz
+          output-dir: dist
+        env:
+          CIBW_BUILD: 'cp3*-macosx_arm64'
+          CIBW_ARCHS_MACOS: 'arm64'  # Enable cross-compilation
+          CIBW_PROJECT_REQUIRES_PYTHON: '>=3.9,<3.12'
+      - uses: actions/upload-artifact@v3
+        with:
+          name: wheels-${{ github.sha }}
+          path: ./dist/*.whl
           retention-days: 7

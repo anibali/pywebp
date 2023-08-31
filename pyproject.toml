@@ -22,6 +22,7 @@ include = [
     { path = "conan_profile", format = "sdist" },
     { path = "webp_build/**/*.c", format = "sdist" },
     { path = "webp_build/**/*.h", format = "sdist" },
+    { path = "tests", format = "sdist" },
 ]
 
 [tool.poetry.build]
