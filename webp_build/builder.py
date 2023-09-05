@@ -42,7 +42,7 @@ for dep in conan_info['dependencies']:
     for include_path in dep['include_paths']:
         include_dirs.append(include_path)
 
-# Specify C sources to be build by CFFI
+# Specify C sources to be built by CFFI
 ffibuilder = FFI()
 ffibuilder.set_source(
     '_webp',

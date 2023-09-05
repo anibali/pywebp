@@ -1,54 +1,44 @@
-[tool.poetry]
+[project]
 name = "webp"
 version = "0.1.7"
 description = "Python bindings for WebP"
-license = "MIT"
-authors = ["Aiden Nibali <dismaldenizen@gmail.com>"]
-readme = "README.md"
-homepage = "https://github.com/anibali/pywebp"
-repository = "https://github.com/anibali/pywebp"
+readme = { content-type = "text/markdown", file = "README.md" }
+authors = [{ name = "Aiden Nibali", email = "dismaldenizen@gmail.com" }]
+requires-python = ">=3.8"
+license = { text = "MIT" }
 classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Topic :: Multimedia :: Graphics :: Graphics Conversion",
     "License :: OSI Approved :: MIT License",
 ]
-packages = [
-    { include = "webp" },
-    { include = "webp_build", format = "sdist" },
-]
-include = [
-    { path = "build.py", format = "sdist" },
-    { path = "conanfile.txt", format = "sdist" },
-    { path = "conan_profile", format = "sdist" },
-    { path = "webp_build/**/*.c", format = "sdist" },
-    { path = "webp_build/**/*.h", format = "sdist" },
-    { path = "tests", format = "sdist" },
+dependencies = [
+    "Pillow>=4.0.0",
+    "cffi>=1.0.0",
+    "numpy>=1.0.0",
 ]
 
-[tool.poetry.build]
-script = "build.py"
-generate-setup-file = true
+[project.optional-dependencies]
+test = [
+    "pytest",
+]
+dev = [
+    "build>=1.0.0",
+    "conan>=1.8.0,<2.0",
+    "conda-lock>=2.0.0",
+    "twine",
+]
 
-[tool.poetry.dependencies]
-Pillow = ">=4.0.0"
-cffi = ">=1.0.0"
-numpy = ">=1.0.0"
-python = ">=3.8,<4.0"
-
-[tool.poetry.group.dev.dependencies]
-conan = ">=1.8.0,<2.0"
-conda-lock = "1.0.5"
-twine = "^4.0.2"
-
-[tool.poetry.group.test.dependencies]
-pytest = "^7.2.1"
+[project.urls]
+homepage = "https://github.com/anibali/pywebp"
 
 [build-system]
 requires = [
     "cffi>=1.0.0",
     "conan>=1.8.0,<2.0",
-    "poetry-core>=1.2.0",
-    "setuptools>=40.8.0",
+    "setuptools>=45",
     "wheel",
 ]
-build-backend = "poetry.core.masonry.api"
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["webp"]
