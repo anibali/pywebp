@@ -110,7 +110,7 @@ with open('anim.webp', 'rb') as f:
    ```
 3. Install PyPI dependencies:
    ```console
-   $ poetry install
+   $ pdm install -G:all
    ```
 
 ### Running tests
