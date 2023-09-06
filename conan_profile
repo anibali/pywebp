@@ -1,0 +1,4 @@
+include(default)
+
+[tool_requires]
+cmake/[>=3.5]
