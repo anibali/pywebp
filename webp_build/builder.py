@@ -15,7 +15,7 @@ conan, _, _ = conan_api.ConanAPIV1.factory()
 settings = []
 print(f'platform.architecture: {platform.architecture()}')
 print(f'platform.machine: {platform.machine()}')
-if platform.architecture()[0] == '32bit' and platform.machine().lower() in {'amd64', 'x86_64', 'x64'}:
+if platform.architecture()[0] == '32bit' and platform.machine().lower() in {'amd64', 'x86_64', 'x64', 'i686'}:
     settings.append('arch=x86')
 if getenv('CIBW_ARCHS_MACOS') == 'arm64':
     # https://blog.conan.io/2021/09/21/m1.html

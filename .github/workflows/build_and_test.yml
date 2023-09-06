@@ -53,6 +53,7 @@ jobs:
     needs: build-sdist
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-20.04
