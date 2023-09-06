@@ -61,10 +61,10 @@ jobs:
             cibw_build: cp3*-win_amd64
           - os: macos-12
             cibw_build: cp3*-macosx_x86_64
-            cibw_arch_macos: x86_64
+            cibw_archs_macos: x86_64
           - os: macos-12
             cibw_build: cp3*-macosx_arm64
-            cibw_arch_macos: arm64
+            cibw_archs_macos: arm64
     steps:
       - name: Fetch source distribution
         uses: actions/download-artifact@v3
