@@ -27,9 +27,13 @@ if getenv('CIBW_ARCHS_MACOS') == 'arm64':
 elif getenv('CIBW_ARCHS_WINDOWS') == 'ARM64':
     settings.append('os=Windows')
     settings.append('arch=armv8')
+if 'musllinux' in getenv('CIBW_BUILD'):
+    build_policy = ['always']
+else:
+    build_policy = ['missing']
 
 with tempfile.TemporaryDirectory() as tmp_dir:
-    conan.install(path=getcwd(), cwd=tmp_dir, settings=settings, build=['missing'])
+    conan.install(path=getcwd(), cwd=tmp_dir, settings=settings, build=build_policy)
     with open(path.join(tmp_dir, 'conanbuildinfo.json'), 'r') as f:
         conan_info = json.load(f)
 
