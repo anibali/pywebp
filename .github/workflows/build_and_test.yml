@@ -99,6 +99,7 @@ jobs:
           CIBW_ARCHS_LINUX: ${{ matrix.cibw_archs_linux }}
           CIBW_ARCHS_WINDOWS: ${{ matrix.cibw_archs_windows }}
           CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs_macos }}
+          CIBW_SKIP: "pp37-* pp38-*" # Pillow unsupported on pypy<3.9
           CIBW_TEST_SKIP: "*_arm64 *_universal2:arm64"  # TODO: Use arm64 CI runner when available
           CIBW_PROJECT_REQUIRES_PYTHON: '>=3.8,<3.12'
           CIBW_TEST_REQUIRES: pytest
