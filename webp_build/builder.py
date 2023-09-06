@@ -13,6 +13,7 @@ conan, _, _ = conan_api.ConanAPIV1.factory()
 
 # Use Conan to install libwebp
 settings = []
+build_pkgs = ['missing']
 print(f'platform.architecture: {platform.architecture()}')
 print(f'platform.machine: {platform.machine()}')
 if platform.architecture()[0] == '32bit' and platform.machine().lower() in {'amd64', 'x86_64', 'x64', 'i686'}:
@@ -27,9 +28,13 @@ if getenv('CIBW_ARCHS_MACOS') == 'arm64':
 elif getenv('CIBW_ARCHS_WINDOWS') == 'ARM64':
     settings.append('os=Windows')
     settings.append('arch=armv8')
+elif getenv('CIBW_ARCHS_LINUX') not in (None, 'x86_64', 'aarch64') or getenv('CIBW_ARCHS_WINDOWS') not in (None, 'AMD64'):
+    # Windows: Only x86_64 works
+    # Linux: CMake binaries are only provided for x86_64 and armv8 architectures
+    build_pkgs.append('cmake')
 
 with tempfile.TemporaryDirectory() as tmp_dir:
-    conan.install(path=getcwd(), cwd=tmp_dir, settings=settings, build=['missing'],
+    conan.install(path=getcwd(), cwd=tmp_dir, settings=settings, build=build_pkgs,
                   profile_names=[path.abspath('conan_profile')])
     with open(path.join(tmp_dir, 'conanbuildinfo.json'), 'r') as f:
         conan_info = json.load(f)
