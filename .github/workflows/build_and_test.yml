@@ -54,7 +54,17 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-2019, macos-12]
+        include:
+          - os: ubuntu-20.04
+            cibw_build: cp3*-manylinux_x86_64
+          - os: windows-2019
+            cibw_build: cp3*-win_amd64
+          - os: macos-12
+            cibw_build: cp3*-macosx_x86_64
+            cibw_arch_macos: x86_64
+          - os: macos-12
+            cibw_build: cp3*-macosx_arm64
+            cibw_arch_macos: arm64
     steps:
       - name: Fetch source distribution
         uses: actions/download-artifact@v3
@@ -68,8 +78,8 @@ jobs:
           package-dir: webp.tar.gz
           output-dir: dist
         env:
-          CIBW_BUILD: 'cp3*-manylinux_x86_64 cp3*-win_amd64 cp3*-macosx_x86_64 cp3*-macosx_arm64'
-          CIBW_ARCHS_MACOS: 'x86_64 arm64'  # Enable cross-compilation on macOS
+          CIBW_BUILD: ${{ matrix.cibw_build }}
+          CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs_macos }}  # Enable cross-compilation on macOS
           # CIBW_TEST_SKIP: '*-macosx_universal2:arm64'  # TODO: Use arm64 CI runner when available
           CIBW_PROJECT_REQUIRES_PYTHON: '>=3.8,<3.12'
           CIBW_TEST_REQUIRES: pytest

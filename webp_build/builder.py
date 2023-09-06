@@ -18,7 +18,7 @@ with tempfile.TemporaryDirectory() as tmp_dir:
     print(f'platform.machine: {platform.machine()}')
     if platform.architecture()[0] == '32bit' and platform.machine().lower() in {'amd64', 'x86_64', 'x64'}:
         settings.append('arch=x86')
-    if 'arm64' in os.getenv('CIBW_ARCHS_MACOS'):
+    if os.getenv('CIBW_ARCHS_MACOS') == 'arm64':
         settings.append('arch=armv8')
     conan.install(path=getcwd(), cwd=tmp_dir, settings=settings, build=['missing'],
                   profile_names=[path.abspath('conan_profile')])
