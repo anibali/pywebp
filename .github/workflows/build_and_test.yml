@@ -69,8 +69,8 @@ jobs:
           output-dir: dist
         env:
           CIBW_BUILD: 'cp3*-manylinux_x86_64 cp3*-win_amd64 cp3*-macosx_universal2'
-          CIBW_ARCHS_MACOS: 'universal2'  # Enable cross-compilation on macOS
-          CIBW_TEST_SKIP: '*-macosx_universal2:arm64'  # TODO: Use arm64 CI runner when available
+          CIBW_ARCHS_MACOS: 'x86_64 arm64'  # Enable cross-compilation on macOS
+          # CIBW_TEST_SKIP: '*-macosx_universal2:arm64'  # TODO: Use arm64 CI runner when available
           CIBW_PROJECT_REQUIRES_PYTHON: '>=3.8,<3.12'
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest {package}/tests
