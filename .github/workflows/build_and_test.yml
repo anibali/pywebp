@@ -62,19 +62,19 @@ jobs:
             cibw_archs_linux: i686
           - os: ubuntu-20.04
             cibw_archs_linux: aarch64
-            cibw_build: "*-muslinux_*"
+            cibw_build: "*-musllinux_*"
           - os: ubuntu-20.04
             cibw_archs_linux: aarch64
             cibw_build: "*-manylinux_*"
           - os: ubuntu-20.04
             cibw_archs_linux: ppc64le
-            cibw_build: "*-muslinux_*"
+            cibw_build: "*-musllinux_*"
           - os: ubuntu-20.04
             cibw_archs_linux: ppc64le
             cibw_build: "*-manylinux_*"
           - os: ubuntu-20.04
             cibw_archs_linux: s390x
-            cibw_build: "*-muslinux_*"
+            cibw_build: "*-musllinux_*"
           - os: ubuntu-20.04
             cibw_archs_linux: s390x
             cibw_build: "*-manylinux_*"
