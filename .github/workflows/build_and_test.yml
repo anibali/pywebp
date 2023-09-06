@@ -53,8 +53,49 @@ jobs:
     needs: build-sdist
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-20.04, windows-2019, macos-12]
+        include:
+          - os: ubuntu-20.04
+            cibw_archs_linux: x86_64
+            cibw_build: "*-manylinux_*"
+          - os: ubuntu-20.04
+            cibw_archs_linux: x86_64
+            cibw_build: "*-musllinux_*"
+          - os: ubuntu-20.04
+            cibw_archs_linux: i686
+            cibw_build: "*-manylinux_*"
+          - os: ubuntu-20.04
+            cibw_archs_linux: i686
+            cibw_build: "*-musllinux_*"
+          - os: ubuntu-20.04
+            cibw_archs_linux: aarch64
+            cibw_build: "*-manylinux_*"
+          - os: ubuntu-20.04
+            cibw_archs_linux: aarch64
+            cibw_build: "*-musllinux_*"
+          - os: ubuntu-20.04
+            cibw_archs_linux: ppc64le
+            cibw_build: "*-manylinux_*"
+          - os: ubuntu-20.04
+            cibw_archs_linux: ppc64le
+            cibw_build: "*-musllinux_*"
+          - os: ubuntu-20.04
+            cibw_archs_linux: s390x
+            cibw_build: "*-manylinux_*"
+          - os: ubuntu-20.04
+            cibw_archs_linux: s390x
+            cibw_build: "*-musllinux_*"
+          - os: windows-2019
+            cibw_archs_windows: AMD64
+          - os: windows-2019
+            cibw_archs_windows: x86
+          - os: windows-2019
+            cibw_archs_windows: ARM64
+          - os: macos-11
+            cibw_archs_macos: x86_64
+          - os: macos-11
+            cibw_archs_macos: arm64
     steps:
       - name: Fetch source distribution
         uses: actions/download-artifact@v3
@@ -62,15 +103,28 @@ jobs:
           name: sdist-${{ github.sha }}
           path: dist/
       - run: mv dist/webp-*.tar.gz webp.tar.gz
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: all
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.15.0
         with:
           package-dir: webp.tar.gz
           output-dir: dist
         env:
-          CIBW_BUILD: 'cp3*-manylinux_x86_64 cp3*-win_amd64 cp3*-macosx_universal2'
-          CIBW_ARCHS_MACOS: 'universal2'  # Enable cross-compilation on macOS
-          CIBW_TEST_SKIP: '*-macosx_universal2:arm64'  # TODO: Use arm64 CI runner when available
+          CIBW_BUILD_FRONTEND: build
+          CIBW_BUILD: ${{ matrix.cibw_build }}
+          CIBW_ARCHS_LINUX: ${{ matrix.cibw_archs_linux }}
+          CIBW_ARCHS_WINDOWS: ${{ matrix.cibw_archs_windows }}
+          CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs_macos }}
+          # TODO: Use arm64 CI runner when available
+          # Skip test for platforms that cannot install dependencies
+          # Pillow: i686, pypy<3.9
+          # numpy: cp38-musllinux-*
+          # Technically can use on platforms that cannot install dependencies (Users has to compile dependencies themselves)
+          CIBW_TEST_SKIP: "*_arm64 *_universal2:arm64 *-win32 *_i686 pp{37,38}-* cp{36,37,38}-musllinux_*"
           CIBW_PROJECT_REQUIRES_PYTHON: '>=3.8,<3.12'
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest {package}/tests
