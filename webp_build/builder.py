@@ -19,7 +19,8 @@ with tempfile.TemporaryDirectory() as tmp_dir:
     if platform.architecture()[0] == '32bit' and platform.machine().lower() in {'amd64', 'x86_64', 'x64'}:
         settings.append('arch=x86')
     if getenv('CIBW_ARCHS_MACOS') == 'arm64':
-        settings.append('arch=armv8')
+        settings.append('os=Macos')
+        settings.append('arch=armv8') # https://blog.conan.io/2021/09/21/m1.html
     conan.install(path=getcwd(), cwd=tmp_dir, settings=settings, build=['missing'],
                   profile_names=[path.abspath('conan_profile')])
     with open(path.join(tmp_dir, 'conanbuildinfo.json'), 'r') as f:

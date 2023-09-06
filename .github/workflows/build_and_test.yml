@@ -78,9 +78,10 @@ jobs:
           package-dir: webp.tar.gz
           output-dir: dist
         env:
+          CIBW_BUILD_FRONTEND: build
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs_macos }}  # Enable cross-compilation on macOS
-          # CIBW_TEST_SKIP: '*-macosx_universal2:arm64'  # TODO: Use arm64 CI runner when available
+          CIBW_TEST_SKIP: "*_arm64 *_universal2:arm64"  # TODO: Use arm64 CI runner when available
           CIBW_PROJECT_REQUIRES_PYTHON: '>=3.8,<3.12'
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest {package}/tests
