@@ -48,7 +48,7 @@ for dep in conan_info['dependencies']:
         include_dirs.append(include_path)
 
 if getenv('CIBW_ARCHS_MACOS') == 'arm64':
-    extra_compile_args.append('-target=arm64-apple-macos11')
+    extra_compile_args.append('--target=arm64-apple-macos11')
 
 # Specify C sources to be built by CFFI
 ffibuilder = FFI()
