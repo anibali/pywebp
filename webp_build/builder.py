@@ -21,6 +21,9 @@ if getenv('CIBW_ARCHS_MACOS') == 'arm64':
     # https://blog.conan.io/2021/09/21/m1.html
     settings.append('os=Macos')
     settings.append('arch=armv8')
+    settings.append('compiler=apple-clang')
+    settings.append('compiler.version=11.0')
+    settings.append('compiler.libcxx=libc++')
 
 with tempfile.TemporaryDirectory() as tmp_dir:
     conan.install(path=getcwd(), cwd=tmp_dir, settings=settings, build=['missing'],
