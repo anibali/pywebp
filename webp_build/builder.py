@@ -19,8 +19,9 @@ with tempfile.TemporaryDirectory() as tmp_dir:
     if platform.architecture()[0] == '32bit' and platform.machine().lower() in {'amd64', 'x86_64', 'x64'}:
         settings.append('arch=x86')
     if getenv('CIBW_ARCHS_MACOS') == 'arm64':
+        # https://blog.conan.io/2021/09/21/m1.html
         settings.append('os=Macos')
-        settings.append('arch=armv8') # https://blog.conan.io/2021/09/21/m1.html
+        settings.append('arch=armv8')
     conan.install(path=getcwd(), cwd=tmp_dir, settings=settings, build=['missing'],
                   profile_names=[path.abspath('conan_profile')])
     with open(path.join(tmp_dir, 'conanbuildinfo.json'), 'r') as f:
@@ -28,6 +29,7 @@ with tempfile.TemporaryDirectory() as tmp_dir:
 
 # Find header files and libraries in libwebp
 extra_objects = []
+extra_compile_args = []
 include_dirs = []
 libraries = []
 for dep in conan_info['dependencies']:
@@ -45,12 +47,16 @@ for dep in conan_info['dependencies']:
     for include_path in dep['include_paths']:
         include_dirs.append(include_path)
 
+if getenv('CIBW_ARCHS_MACOS') == 'arm64':
+    extra_compile_args.append('-target arm64-apple-macos11')
+
 # Specify C sources to be built by CFFI
 ffibuilder = FFI()
 ffibuilder.set_source(
     '_webp',
     read_text(webp_build, 'source.c'),
     extra_objects=extra_objects,
+    extra_compile_args=extra_compile_args,
     include_dirs=include_dirs,
     libraries=libraries,
 )
