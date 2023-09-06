@@ -32,7 +32,7 @@ print(conan_info)
 
 # Find header files and libraries in libwebp
 extra_objects = []
-# extra_compile_args = []
+extra_compile_args = []
 include_dirs = []
 libraries = []
 for dep in conan_info['dependencies']:
