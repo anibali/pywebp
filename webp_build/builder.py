@@ -24,6 +24,9 @@ if getenv('CIBW_ARCHS_MACOS') == 'arm64':
     settings.append('compiler=apple-clang')
     settings.append('compiler.version=11.0')
     settings.append('compiler.libcxx=libc++')
+elif getenv('CIBW_ARCHS_WINDOWS') == 'ARM64':
+    settings.append('os=Windows')
+    settings.append('arch=armv8')
 
 with tempfile.TemporaryDirectory() as tmp_dir:
     conan.install(path=getcwd(), cwd=tmp_dir, settings=settings, build=['missing'],

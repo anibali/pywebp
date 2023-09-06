@@ -56,14 +56,24 @@ jobs:
       matrix:
         include:
           - os: ubuntu-20.04
-            cibw_build: cp3*-manylinux_x86_64
+            cibw_archs_linux: x86_64
+          - os: ubuntu-20.04
+            cibw_archs_linux: i686
+          - os: ubuntu-20.04
+            cibw_archs_linux: aarch64
+          - os: ubuntu-20.04
+            cibw_archs_linux: ppc64le
+          - os: ubuntu-20.04
+            cibw_archs_linux: s390x
           - os: windows-2019
-            cibw_build: cp3*-win_amd64
+            cibw_archs_windows: AMD64
+          - os: windows-2019
+            cibw_archs_windows: x86
+          - os: windows-2019
+            cibw_archs_windows: ARM64
           - os: macos-11
-            cibw_build: cp3*-macosx_x86_64
             cibw_archs_macos: x86_64
           - os: macos-11
-            cibw_build: cp3*-macosx_arm64
             cibw_archs_macos: arm64
     steps:
       - name: Fetch source distribution
@@ -72,6 +82,11 @@ jobs:
           name: sdist-${{ github.sha }}
           path: dist/
       - run: mv dist/webp-*.tar.gz webp.tar.gz
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: all
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.15.0
         with:
@@ -80,7 +95,9 @@ jobs:
         env:
           CIBW_BUILD_FRONTEND: build
           CIBW_BUILD: ${{ matrix.cibw_build }}
-          CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs_macos }}  # Enable cross-compilation on macOS
+          CIBW_ARCHS_LINUX: ${{ matrix.cibw_archs_linux }}
+          CIBW_ARCHS_WINDOWS: ${{ matrix.cibw_archs_windows }}
+          CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs_macos }}
           CIBW_TEST_SKIP: "*_arm64 *_universal2:arm64"  # TODO: Use arm64 CI runner when available
           CIBW_PROJECT_REQUIRES_PYTHON: '>=3.8,<3.12'
           CIBW_TEST_REQUIRES: pytest
