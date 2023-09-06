@@ -1,7 +1,6 @@
 include README.md
 include LICENSE
 include conanfile.txt
-include conan_profile
 include pyproject.toml
 
 graft webp_build
