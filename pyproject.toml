@@ -1,6 +1,6 @@
 [project]
 name = "webp"
-version = "0.1.7"
+version = "0.1.8"
 description = "Python bindings for WebP"
 readme = { content-type = "text/markdown", file = "README.md" }
 authors = [{ name = "Aiden Nibali", email = "dismaldenizen@gmail.com" }]
