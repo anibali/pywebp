@@ -13,8 +13,6 @@ conan, _, _ = conan_api.ConanAPIV1.factory()
 
 # Use Conan to install libwebp
 settings = []
-print(f'platform.architecture: {platform.architecture()}')
-print(f'platform.machine: {platform.machine()}')
 if platform.architecture()[0] == '32bit' and platform.machine().lower() in {'amd64', 'x86_64', 'x64', 'i686'}:
     settings.append('arch=x86')
 if getenv('CIBW_ARCHS_MACOS') == 'arm64':
@@ -36,8 +34,6 @@ with tempfile.TemporaryDirectory() as tmp_dir:
     conan.install(path=getcwd(), cwd=tmp_dir, settings=settings, build=build_policy)
     with open(path.join(tmp_dir, 'conanbuildinfo.json'), 'r') as f:
         conan_info = json.load(f)
-
-print(conan_info)
 
 # Find header files and libraries in libwebp
 extra_objects = []
@@ -61,12 +57,6 @@ for dep in conan_info['dependencies']:
 
 if getenv('CIBW_ARCHS_MACOS') == 'arm64':
     extra_compile_args.append('--target=arm64-apple-macos11')
-
-print('CFFI arguments:')
-print(f'{extra_objects = }')
-print(f'{extra_compile_args = }')
-print(f'{include_dirs = }')
-print(f'{libraries = }')
 
 # Specify C sources to be built by CFFI
 ffibuilder = FFI()
