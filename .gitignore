@@ -6,6 +6,7 @@ __pycache__/
 # Temporary files
 *.swp
 *~
+conan_output
 
 # IDE configuration
 .idea/

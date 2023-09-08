@@ -33,31 +33,37 @@ def install_libwebp(arch=None):
         settings.append('--build=missing')
     
     subprocess.run(['conan', 'profile', 'detect'])
-    result = subprocess.run(['conan', 'install', *settings, '--format=json', '.'], stdout=subprocess.PIPE).stdout.decode()
+    result = subprocess.run(['conan', 'install', *settings, 
+                             '-of', 'conan_output', '--deployer=full_deploy',
+                             '--format=json', '.'], stdout=subprocess.PIPE).stdout.decode()
     conan_info = json.loads(result)
+    # print(conan_info)
     
     return conan_info
 
 def fetch_cffi_settings(conan_info, cffi_settings):
     # Find header files and libraries in libwebp
 
-    for dep in conan_info['dependencies']:
-        for lib_name in dep['libs']:
-            if platform.system() == 'Windows':
-                lib_filename = '{}.lib'.format(lib_name)
-            else:
-                lib_filename = 'lib{}.a'.format(lib_name)
-            for lib_path in dep['lib_paths']:
-                candidate = os.path.join(lib_path, lib_filename)
-                if os.path.isfile(candidate):
-                    cffi_settings['extra_objects'].append(candidate)
-                else:
-                    cffi_settings['libraries'].append(lib_name)
-        for include_path in dep['include_paths']:
-            cffi_settings['include_dirs'].append(include_path)
+    for dep in conan_info['graph']['nodes'].values():
+        if dep.get('package_folder') == None:
+            continue
+
+        lib_dirs = dep['cpp_info']['root']['libdirs']
+        include_dirs = dep['cpp_info']['root']['includedirs']
+
+        for lib_dir in lib_dirs:
+            for lib_filename in os.listdir(lib_dir):
+                lib_path = os.path.join(lib_dir, lib_filename)
+                if os.path.splitext(lib_filename)[-1] in ('.lib', '.a'):
+                    cffi_settings['extra_objects'].append(lib_path)
+        
+        for include_dir in include_dirs:
+            cffi_settings['include_dirs'].append(include_dir)
     
-    if  platform.system() == 'Darwin':
+    if platform.system() == 'Darwin':
         cffi_settings['extra_compile_args'].append('-mmacosx-version-min=11.0')
+    
+    print(f'{cffi_settings = }')
     
     return cffi_settings
 
