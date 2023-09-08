@@ -15,20 +15,20 @@ def install_libwebp(arch=None):
     settings = []
 
     if platform.system() == 'Windows':
-        settings.append('-s os=Windows')
+        settings.append('os=Windows')
     elif platform.system() == 'Darwin':
-        settings.append('-s os=Macos')
-        settings.append('-s compiler=apple-clang')
-        settings.append('-s compiler.version=11.0')
-        settings.append('-s compiler.libcxx=libc++')
+        settings.append('os=Macos')
+        settings.append('compiler=apple-clang')
+        settings.append('compiler.version=11.0')
+        settings.append('compiler.libcxx=libc++')
     elif platform.system() == 'Linux':
-        settings.append('-s os=Linux')
-        settings.append('-s compiler=gcc')
-        settings.append('-s compiler.version=10')
-        settings.append('-s compiler.libcxx=libstdc++')
+        settings.append('os=Linux')
+        settings.append('compiler=gcc')
+        settings.append('compiler.version=10')
+        settings.append('compiler.libcxx=libstdc++')
 
     if arch:
-        settings.append(f'-s arch={arch}')
+        settings.append(f'arch={arch}')
 
     if os.path.isdir('/lib') and len([i for i in os.listdir('/lib') if i.startswith('libc.musl')]) != 0:
         # Need to compile libwebp if musllinux
@@ -37,7 +37,7 @@ def install_libwebp(arch=None):
         settings.append('--build=missing')
     
     subprocess.run(['conan', 'profile', 'detect'])
-    result = subprocess.run(['conan', 'install', *settings, 
+    result = subprocess.run(['conan', 'install', *[x for s in settings for x in ('-s', s)], 
                             #  '-of', 'conan_output', '--deployer=full_deploy',
                              '--format=json', '.'], stdout=subprocess.PIPE).stdout.decode()
     # print(result)
