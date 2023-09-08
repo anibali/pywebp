@@ -81,7 +81,7 @@ cffi_settings = {
 
 conan_info = install_libwebp(arch)
 cffi_settings = fetch_cffi_settings(conan_info, cffi_settings)
-if 'universal2' in getenv('CIBW_ARCHS_MACOS'):
+if getenv('CIBW_ARCHS_MACOS') and 'universal2' in getenv('CIBW_ARCHS_MACOS'):
     # Repeat to install the other architecture version of libwebp
     conan_info = install_libwebp('x86_64')
     cffi_settings = fetch_cffi_settings(conan_info, cffi_settings)
