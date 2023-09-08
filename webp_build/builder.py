@@ -57,8 +57,10 @@ def fetch_cffi_settings(conan_info, cffi_settings):
             
             for include_dir in i.get('includedirs', []):
                 cffi_settings['include_dirs'].append(include_dir) if include_dir not in cffi_settings['include_dirs'] else None
-        
-            for lib_name in i.get('libs', []):
+
+            lib_names = ['webpdecoder', 'webpdemux', 'webpmux', 'webp'] # DEBUG
+            # for lib_name in i.get('libs', []):
+            for lib_name in lib_names:
                 if platform.system() == 'Windows':
                     lib_filename = '{}.lib'.format(lib_name)
                 else:
@@ -68,6 +70,8 @@ def fetch_cffi_settings(conan_info, cffi_settings):
                     lib_path = os.path.join(lib_dir, lib_filename)
                     if os.path.isfile(lib_path):
                         cffi_settings['extra_objects'].append(lib_path)
+                    # else:
+                    #     cffi_settings['libraries'].append(lib_name)
     
     if platform.system() == 'Darwin':
         cffi_settings['extra_compile_args'].append('-mmacosx-version-min=11.0')
