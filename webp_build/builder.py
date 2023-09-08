@@ -64,6 +64,7 @@ def fetch_cffi_settings(conan_info, cffi_settings):
     
     return cffi_settings
 
+arch = None
 if platform.architecture()[0] == '32bit' and platform.machine().lower() in {'amd64', 'x86_64', 'x64', 'i686'}:
     arch = 'x86'
 elif getenv('CIBW_ARCHS_MACOS') and ('arm64' in getenv('CIBW_ARCHS_MACOS') or 'universal2' in getenv('CIBW_ARCHS_MACOS')):
