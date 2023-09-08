@@ -64,41 +64,38 @@ def fetch_cffi_settings(conan_info, cffi_settings):
     
     return cffi_settings
 
-def main():
-    if platform.architecture()[0] == '32bit' and platform.machine().lower() in {'amd64', 'x86_64', 'x64', 'i686'}:
-        arch = 'x86'
-    elif 'arm64' in getenv('CIBW_ARCHS_MACOS') or 'universal2' in getenv('CIBW_ARCHS_MACOS'):
-        arch = 'armv8'
-    elif 'ARM64' in getenv('CIBW_ARCHS_WINDOWS'):
-        arch = 'armv8'
+if platform.architecture()[0] == '32bit' and platform.machine().lower() in {'amd64', 'x86_64', 'x64', 'i686'}:
+    arch = 'x86'
+elif 'arm64' in getenv('CIBW_ARCHS_MACOS') or 'universal2' in getenv('CIBW_ARCHS_MACOS'):
+    arch = 'armv8'
+elif 'ARM64' in getenv('CIBW_ARCHS_WINDOWS'):
+    arch = 'armv8'
 
-    cffi_settings = {
-        'extra_objects': [],
-        'extra_compile_args': [],
-        'include_dirs': [],
-        'libraries': []
-    }
+cffi_settings = {
+    'extra_objects': [],
+    'extra_compile_args': [],
+    'include_dirs': [],
+    'libraries': []
+}
 
-    conan_info = install_libwebp(arch)
+conan_info = install_libwebp(arch)
+cffi_settings = fetch_cffi_settings(conan_info, cffi_settings)
+if 'universal2' in getenv('CIBW_ARCHS_MACOS'):
+    # Repeat to install the other architecture version of libwebp
+    conan_info = install_libwebp('x86_64')
     cffi_settings = fetch_cffi_settings(conan_info, cffi_settings)
-    if 'universal2' in getenv('CIBW_ARCHS_MACOS'):
-        # Repeat to install the other architecture version of libwebp
-        conan_info = install_libwebp('x86_64')
-        cffi_settings = fetch_cffi_settings(conan_info, cffi_settings)
 
-    # Specify C sources to be built by CFFI
-    ffibuilder = FFI()
-    ffibuilder.set_source(
-        '_webp',
-        read_text(webp_build, 'source.c'),
-        extra_objects=cffi_settings['extra_objects'],
-        extra_compile_args=cffi_settings['extra_compile_args'],
-        include_dirs=cffi_settings['include_dirs'],
-        libraries=cffi_settings['libraries'],
-    )
-    ffibuilder.cdef(read_text(webp_build, 'cdef.h'))
-
-    ffibuilder.compile(verbose=True)
+# Specify C sources to be built by CFFI
+ffibuilder = FFI()
+ffibuilder.set_source(
+    '_webp',
+    read_text(webp_build, 'source.c'),
+    extra_objects=cffi_settings['extra_objects'],
+    extra_compile_args=cffi_settings['extra_compile_args'],
+    include_dirs=cffi_settings['include_dirs'],
+    libraries=cffi_settings['libraries'],
+)
+ffibuilder.cdef(read_text(webp_build, 'cdef.h'))
 
 if __name__ == '__main__':
-    main()
+    ffibuilder.compile(verbose=True)
