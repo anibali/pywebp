@@ -60,13 +60,13 @@ jobs:
             cibw_build: "cp3*-manylinux_*"
           - os: ubuntu-20.04
             cibw_archs_linux: x86_64
-            cibw_build: "cp3*-muslinux_*"
+            cibw_build: "cp3*-musllinux_*"
           - os: ubuntu-20.04
             cibw_archs_linux: x86_64
             cibw_build: "cp3*-manylinux_*"
           - os: ubuntu-20.04
             cibw_archs_linux: x86_64
-            cibw_build: "cp3*-muslinux_*"
+            cibw_build: "cp3*-musllinux_*"
 #          - os: ubuntu-20.04
 #            cibw_archs_linux: x86_64
 #            cibw_build: "*-musllinux_*"
