@@ -32,6 +32,7 @@ def install_libwebp(arch=None):
     else:
         settings.append('--build=missing')
     
+    subprocess.run(['conan', 'profile', 'detect'])
     result = subprocess.run(['conan', 'install', *settings, '--format=json', '.'], stdout=subprocess.PIPE).stdout.decode()
     conan_info = json.loads(result)
     

@@ -126,7 +126,7 @@ jobs:
           CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs_macos }}
           # TODO: Use arm64 CI runner when available
           CIBW_TEST_SKIP: "*_arm64"
-          CIBW_PROJECT_REQUIRES_PYTHON: '>=3.8,<3.12'
+          CIBW_PROJECT_REQUIRES_PYTHON: '>=3.8'
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest {package}/tests
       - uses: actions/upload-artifact@v3
