@@ -1,43 +1,39 @@
 import json
 import platform
-import tempfile
 from importlib.resources import read_text
-from os import path, getcwd, getenv
+import os
+import subprocess
 import platform
 
 from cffi import FFI
-from conans.client import conan_api
 
 import webp_build
 
 def install_libwebp(arch=None):
     # Use Conan to install libwebp
 
-    conan, _, _ = conan_api.ConanAPIV1.factory()
-
     settings = []
+
     if platform.system() == 'Windows':
-        settings.append('os=Windows')
+        settings.append('-s:h os=Windows')
     elif platform.system() == 'Darwin':
-        settings.append('os=Macos')
-        settings.append('compiler=apple-clang')
-        settings.append('compiler.version=11.0')
-        settings.append('compiler.libcxx=libc++')
+        settings.append('-s:h os=Macos')
+        settings.append('-s:h compiler=apple-clang')
+        settings.append('-s:h compiler.version=11.0')
+        settings.append('-s:h compiler.libcxx=libc++')
     elif platform.system() == 'Linux':
-        settings.append('os=Linux')
+        settings.append('-s:h os=Linux')
 
     if arch:
-        settings.append(f'arch={arch}')
+        settings.append(f'-s:h arch={arch}')
 
-    if getenv('CIBW_BUILD') and 'musllinux' in getenv('CIBW_BUILD'):
-        build_policy = ['always']
+    if os.getenv('CIBW_BUILD') and 'musllinux' in os.getenv('CIBW_BUILD'):
+        settings.append('--build="*"')
     else:
-        build_policy = ['missing']
-
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        conan.install(path=getcwd(), cwd=tmp_dir, settings=settings, build=build_policy)
-        with open(path.join(tmp_dir, 'conanbuildinfo.json'), 'r') as f:
-            conan_info = json.load(f)
+        settings.append('--build=missing')
+    
+    result = subprocess.run(['conan', 'install', *settings, '--format=json', '.'], stdout=subprocess.PIPE).stdout.decode()
+    conan_info = json.loads(result)
     
     return conan_info
 
@@ -51,8 +47,8 @@ def fetch_cffi_settings(conan_info, cffi_settings):
             else:
                 lib_filename = 'lib{}.a'.format(lib_name)
             for lib_path in dep['lib_paths']:
-                candidate = path.join(lib_path, lib_filename)
-                if path.isfile(candidate):
+                candidate = os.path.join(lib_path, lib_filename)
+                if os.path.isfile(candidate):
                     cffi_settings['extra_objects'].append(candidate)
                 else:
                     cffi_settings['libraries'].append(lib_name)
@@ -67,9 +63,9 @@ def fetch_cffi_settings(conan_info, cffi_settings):
 arch = None
 if platform.architecture()[0] == '32bit' and platform.machine().lower() in {'amd64', 'x86_64', 'x64', 'i686'}:
     arch = 'x86'
-elif getenv('CIBW_ARCHS_MACOS') and ('arm64' in getenv('CIBW_ARCHS_MACOS') or 'universal2' in getenv('CIBW_ARCHS_MACOS')):
+elif os.getenv('CIBW_ARCHS_MACOS') and ('arm64' in os.getenv('CIBW_ARCHS_MACOS') or 'universal2' in os.getenv('CIBW_ARCHS_MACOS')):
     arch = 'armv8'
-elif getenv('CIBW_ARCHS_WINDOWS') and 'ARM64' in getenv('CIBW_ARCHS_WINDOWS'):
+elif os.getenv('CIBW_ARCHS_WINDOWS') and 'ARM64' in os.getenv('CIBW_ARCHS_WINDOWS'):
     arch = 'armv8'
 
 cffi_settings = {
@@ -81,7 +77,7 @@ cffi_settings = {
 
 conan_info = install_libwebp(arch)
 cffi_settings = fetch_cffi_settings(conan_info, cffi_settings)
-if getenv('CIBW_ARCHS_MACOS') and 'universal2' in getenv('CIBW_ARCHS_MACOS'):
+if os.getenv('CIBW_ARCHS_MACOS') and 'universal2' in os.getenv('CIBW_ARCHS_MACOS'):
     # Repeat to install the other architecture version of libwebp
     conan_info = install_libwebp('x86_64')
     cffi_settings = fetch_cffi_settings(conan_info, cffi_settings)
