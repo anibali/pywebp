@@ -23,9 +23,6 @@ def install_libwebp(arch=None):
         settings.append('compiler.libcxx=libc++')
     elif platform.system() == 'Linux':
         settings.append('os=Linux')
-        settings.append('compiler=gcc')
-        settings.append('compiler.version=10')
-        settings.append('compiler.libcxx=libstdc++')
 
     if arch:
         settings.append(f'arch={arch}')
@@ -45,7 +42,7 @@ def install_libwebp(arch=None):
     subprocess.run(['conan', 'profile', 'detect'])
     result = subprocess.run([
         'conan', 'install', *[x for s in settings for x in ('-s', s)], 
-        '-of', 'conan_output', '--deployer=full_deploy',
+        # '-of', 'conan_output', '--deployer=full_deploy',
         '--build', build_mode, '--format=json', '.'
         ], stdout=subprocess.PIPE).stdout.decode()
     # print(result)
