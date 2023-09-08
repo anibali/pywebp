@@ -98,6 +98,9 @@ jobs:
           - os: macos-11
             cibw_archs_macos: arm64
             cibw_build: "cp3*-macosx_arm64"
+          - os: macos-11
+            cibw_archs_macos: universal2
+            cibw_build: "cp3*-macosx_universal2"
     steps:
       - name: Fetch source distribution
         uses: actions/download-artifact@v3
