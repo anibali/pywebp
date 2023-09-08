@@ -62,7 +62,7 @@ jobs:
           - os: ubuntu-20.04
             cibw_archs_linux: x86_64
             cibw_build: "cp3*-musllinux_*"
-            cibw_before_all: yum install -y libffi-devel # May remove when cffi release py3.12 wheel
+            cibw_before_all: apk add libffi-devel # May remove when cffi release py3.12 wheel
           - os: ubuntu-20.04
             cibw_archs_linux: x86_64
             cibw_build: "cp3*-manylinux_*"
@@ -70,7 +70,7 @@ jobs:
           - os: ubuntu-20.04
             cibw_archs_linux: x86_64
             cibw_build: "cp3*-musllinux_*"
-            cibw_before_all: yum install -y libffi-devel # May remove when cffi release py3.12 wheel
+            cibw_before_all: apk add libffi-devel # May remove when cffi release py3.12 wheel
 #          - os: ubuntu-20.04
 #            cibw_archs_linux: x86_64
 #            cibw_build: "cp3*-musllinux_*"
