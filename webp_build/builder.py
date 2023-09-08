@@ -33,16 +33,10 @@ def install_libwebp(arch=None):
     else:
         build_mode = 'missing'
     
-    print(settings)
-    print([x for s in settings for x in ('-s', s)])
-    print(['conan', 'install', *[x for s in settings for x in ('-s', s)], 
-                             '-of', 'conan_output', '--deployer=full_deploy',
-                             '--format=json', '.'])
-    
     subprocess.run(['conan', 'profile', 'detect'])
     result = subprocess.run([
         'conan', 'install', *[x for s in settings for x in ('-s', s)], 
-        # '-of', 'conan_output', '--deployer=full_deploy',
+        '-of', 'conan_output', '--deployer=full_deploy',
         '--build', build_mode, '--format=json', '.'
         ], stdout=subprocess.PIPE).stdout.decode()
     # print(result)
@@ -57,17 +51,23 @@ def fetch_cffi_settings(conan_info, cffi_settings):
         if dep.get('package_folder') == None:
             continue
 
-        lib_dirs = dep['cpp_info']['root']['libdirs']
-        include_dirs = dep['cpp_info']['root']['includedirs']
-
-        for lib_dir in lib_dirs:
-            for lib_filename in os.listdir(lib_dir):
-                lib_path = os.path.join(lib_dir, lib_filename)
-                if os.path.splitext(lib_filename)[-1] in ('.lib', '.a'):
-                    cffi_settings['extra_objects'].append(lib_path)
+        for lib_name, i in dep['cpp_info'].items():
+            if lib_name == 'root':
+                continue
+            
+            for include_dir in i.get('includedirs', []):
+                cffi_settings['include_dirs'].append(include_dir) if include_dir not in cffi_settings['include_dirs'] else None
         
-        for include_dir in include_dirs:
-            cffi_settings['include_dirs'].append(include_dir)
+            for lib_name in i.get('libs', []):
+                if platform.system() == 'Windows':
+                    lib_filename = '{}.lib'.format(lib_name)
+                else:
+                    lib_filename = 'lib{}.a'.format(lib_name)
+                
+                for lib_dir in i.get('libdirs', []):
+                    lib_path = os.path.join(lib_dir, lib_filename)
+                    if os.path.isfile(lib_path):
+                        cffi_settings['extra_objects'].append(lib_path)
     
     if platform.system() == 'Darwin':
         cffi_settings['extra_compile_args'].append('-mmacosx-version-min=11.0')

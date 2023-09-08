@@ -6,4 +6,4 @@ class LibwebpRecipe(ConanFile):
 
     def build_requirements(self):
         # if self.settings.arch in ("x86_64", "armv8"):
-        self.tool_requires("cmake/3.22.6")
+        self.tool_requires("cmake/[>=3.5]")
