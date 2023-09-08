@@ -51,17 +51,23 @@ def fetch_cffi_settings(conan_info, cffi_settings):
         if dep.get('package_folder') == None:
             continue
         
-        for lib_name, i in reversed(dep['cpp_info'].items()):
-            for include_dir in dep['cpp_info'][lib_name].get('includedirs', []):
+        for lib, i in reversed(dep['cpp_info'].items()):
+            for include_dir in dep['cpp_info'][lib].get('includedirs', []):
                 cffi_settings['include_dirs'].append(include_dir) if include_dir not in cffi_settings['include_dirs'] else None
 
-            for lib_name in i.get('libs', []):
+            if not i.get('libs'):
+                continue
+
+            for lib_name in i.get('libs'):
                 if platform.system() == 'Windows':
                     lib_filename = '{}.lib'.format(lib_name)
                 else:
                     lib_filename = 'lib{}.a'.format(lib_name)
                 
-                for lib_dir in i.get('libdirs', []):
+                if not i.get('libdirs'):
+                    continue
+
+                for lib_dir in i.get('libdirs'):
                     lib_path = os.path.join(lib_dir, lib_filename)
                     if os.path.isfile(lib_path):
                         cffi_settings['extra_objects'].append(lib_path)
