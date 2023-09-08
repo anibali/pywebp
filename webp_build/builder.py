@@ -36,9 +36,8 @@ def install_libwebp(arch=None):
     result = subprocess.run(['conan', 'install', *settings, 
                              '-of', 'conan_output', '--deployer=full_deploy',
                              '--format=json', '.'], stdout=subprocess.PIPE).stdout.decode()
-    print(result)
+    # print(result)
     conan_info = json.loads(result)
-    # print(conan_info)
     
     return conan_info
 
