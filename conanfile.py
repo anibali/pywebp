@@ -1,10 +1,6 @@
 from conan import ConanFile
 
-class CompressorRecipe(ConanFile):
-    # Binary configuration
-    settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeToolchain", "CMakeDeps"
-
+class LibwebpRecipe(ConanFile):
     def requirements(self):
         self.requires("libwebp/1.0.3")
 
