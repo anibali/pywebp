@@ -15,31 +15,39 @@ def install_libwebp(arch=None):
     settings = []
 
     if platform.system() == 'Windows':
-        settings.append('os="Windows"')
+        settings.append('os=Windows')
     elif platform.system() == 'Darwin':
-        settings.append('os="Macos"')
-        settings.append('compiler="apple-clang"')
-        settings.append('compiler.version="11.0"')
-        settings.append('compiler.libcxx="libc++"')
+        settings.append('os=Macos')
+        settings.append('compiler=apple-clang')
+        settings.append('compiler.version=11.0')
+        settings.append('compiler.libcxx=libc++')
     elif platform.system() == 'Linux':
-        settings.append('os="Linux"')
-        settings.append('compiler="gcc"')
-        settings.append('compiler.version="10"')
-        settings.append('compiler.libcxx="libstdc++"')
+        settings.append('os=Linux')
+        settings.append('compiler=gcc')
+        settings.append('compiler.version=10')
+        settings.append('compiler.libcxx=libstdc++')
 
     if arch:
-        settings.append(f'arch="{arch}"')
+        settings.append(f'arch={arch}')
 
     if os.path.isdir('/lib') and len([i for i in os.listdir('/lib') if i.startswith('libc.musl')]) != 0:
         # Need to compile libwebp if musllinux
-        settings.append('--build="*"')
+        build_mode = '*'
     else:
-        settings.append('--build=missing')
+        build_mode = 'missing'
+    
+    print(settings)
+    print([x for s in settings for x in ('-s', s)])
+    print(['conan', 'install', *[x for s in settings for x in ('-s', s)], 
+                             '-of', 'conan_output', '--deployer=full_deploy',
+                             '--format=json', '.'])
     
     subprocess.run(['conan', 'profile', 'detect'])
-    result = subprocess.run(['conan', 'install', *[x for s in settings for x in ('-s', s)], 
-                            #  '-of', 'conan_output', '--deployer=full_deploy',
-                             '--format=json', '.'], stdout=subprocess.PIPE).stdout.decode()
+    result = subprocess.run([
+        'conan', 'install', *[x for s in settings for x in ('-s', s)], 
+        '-of', 'conan_output', '--deployer=full_deploy',
+        '--build', build_mode, '--format=json', '.'
+        ], stdout=subprocess.PIPE).stdout.decode()
     # print(result)
     conan_info = json.loads(result)
     
