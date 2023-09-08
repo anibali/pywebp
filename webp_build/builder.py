@@ -23,6 +23,9 @@ def install_libwebp(arch=None):
         settings.append('-s:h compiler.libcxx=libc++')
     elif platform.system() == 'Linux':
         settings.append('-s:h os=Linux')
+        settings.append('-s:h compiler=gcc')
+        settings.append('-s:h compiler.version=10')
+        settings.append('-s:h compiler.libcxx=libstdc++')
 
     if arch:
         settings.append(f'-s:h arch={arch}')

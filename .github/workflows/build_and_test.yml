@@ -42,7 +42,7 @@ jobs:
           python-version: 3.8
       - name: Install the package
         run: |
-          python -m pip install -vvv dist/webp-*.tar.gz
+          python -m pip install -v dist/webp-*.tar.gz
       - name: Test with pytest
         run: |
           python -m pip install pytest==7.2.1
