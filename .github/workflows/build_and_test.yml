@@ -61,12 +61,14 @@ jobs:
           - os: ubuntu-20.04
             cibw_archs_linux: x86_64
             cibw_build: "cp3*-musllinux_*"
+            cibw_skip: "cp38-musllinux_*"
           - os: ubuntu-20.04
             cibw_archs_linux: aarch64
             cibw_build: "cp3*-manylinux_*"
           - os: ubuntu-20.04
             cibw_archs_linux: aarch64
             cibw_build: "cp3*-musllinux_*"
+            cibw_skip: "cp38-musllinux_*"
           # - os: ubuntu-20.04
           #   cibw_archs_linux: i686
           #   cibw_build: "cp3*-manylinux_*"
@@ -123,6 +125,7 @@ jobs:
         env:
           CIBW_BUILD_FRONTEND: build
           CIBW_BUILD: ${{ matrix.cibw_build }}
+          CIBW_SKIP: ${{ matrix.cibw_skip }}
           CIBW_ARCHS_LINUX: ${{ matrix.cibw_archs_linux }}
           CIBW_ARCHS_WINDOWS: ${{ matrix.cibw_archs_windows }}
           CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs_macos }}
