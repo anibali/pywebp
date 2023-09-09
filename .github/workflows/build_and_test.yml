@@ -145,6 +145,7 @@ jobs:
           CIBW_PROJECT_REQUIRES_PYTHON: '>=3.8'
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest {package}/tests
+          CIBW_TEST_REQUIRES: setuptools>=45
       - uses: actions/upload-artifact@v3
         with:
           name: wheels-${{ github.sha }}
