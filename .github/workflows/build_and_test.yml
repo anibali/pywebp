@@ -111,7 +111,7 @@ jobs:
           path: dist/
       - run: mv dist/webp-*.tar.gz webp.tar.gz
       - name: Set up QEMU
-        if: runner.os == 'Linux' and runner.cibw_archs_linux != 'x86_64'
+        if: runner.os == 'Linux' && runner.cibw_archs_linux != 'x86_64'
         uses: docker/setup-qemu-action@v2
         with:
           platforms: all
