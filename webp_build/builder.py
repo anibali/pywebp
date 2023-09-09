@@ -30,9 +30,9 @@ def install_libwebp(arch=None):
     build = []
     if os.path.isdir('/lib') and len([i for i in os.listdir('/lib') if i.startswith('libc.musl')]) != 0:
         # Need to compile libwebp if musllinux
-        build.append('libwebp')
+        build.append('libwebp*')
     if not platform.machine().lower().startswith(('amd64', 'x86_64', 'x64', 'arm64', 'aarch64', 'armv8')):
-        build.append('cmake')
+        build.append('cmake*')
     if build == []:
         build.append('missing')
     
