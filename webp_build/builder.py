@@ -27,17 +27,21 @@ def install_libwebp(arch=None):
     if arch:
         settings.append(f'arch={arch}')
 
+    build = []
     if os.path.isdir('/lib') and len([i for i in os.listdir('/lib') if i.startswith('libc.musl')]) != 0:
         # Need to compile libwebp if musllinux
-        build_mode = '*'
-    else:
-        build_mode = 'missing'
+        build.append('libwebp')
+    if not platform.machine().lower().startswith(('amd64', 'x86_64', 'x64', 'arm64', 'aarch64', 'armv8')):
+        build.append('cmake')
+    if build == []:
+        build.append('missing')
     
     subprocess.run(['conan', 'profile', 'detect'])
     result = subprocess.run([
-        'conan', 'install', *[x for s in settings for x in ('-s', s)], 
-        '-of', 'conan_output', '--deployer=full_deploy',
-        '--build', build_mode, '--format=json', '.'
+        'conan', 'install', 
+        *[x for s in settings for x in ('-s', s)],
+        *[x for b in build for x in ('-b', b)],
+        '-of', 'conan_output', '--deployer=full_deploy', '--format=json', '.'
         ], stdout=subprocess.PIPE).stdout.decode()
     # print(result)
     conan_info = json.loads(result)
