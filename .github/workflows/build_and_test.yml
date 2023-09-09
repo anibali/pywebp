@@ -65,10 +65,9 @@ jobs:
           - os: ubuntu-20.04
             cibw_archs_linux: aarch64
             cibw_build: "cp3*-manylinux_*"
-          - os: ubuntu-20.04
-            cibw_archs_linux: aarch64
-            cibw_build: "cp3*-musllinux_*"
-            cibw_skip: "cp38-musllinux_*"
+          # - os: ubuntu-20.04
+          #   cibw_archs_linux: aarch64
+          #   cibw_build: "cp3*-musllinux_*"
           # - os: ubuntu-20.04
           #   cibw_archs_linux: i686
           #   cibw_build: "cp3*-manylinux_*"
