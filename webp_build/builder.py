@@ -18,8 +18,11 @@ def install_libwebp(arch=None):
         settings.append('os=Windows')
     elif platform.system() == 'Darwin':
         settings.append('os=Macos')
+        if arch == 'x86_64':
+            settings.append('os.version=10.9')
+        else:
+            settings.append('os.version=11.0')
         settings.append('compiler=apple-clang')
-        settings.append('compiler.version=11.0')
         settings.append('compiler.libcxx=libc++')
     elif platform.system() == 'Linux':
         settings.append('os=Linux')
@@ -78,9 +81,6 @@ def fetch_cffi_settings(conan_info, cffi_settings):
                     else:
                         cffi_settings['libraries'].append(lib_name)
     
-    if platform.system() == 'Darwin':
-        cffi_settings['extra_compile_args'].append('-mmacosx-version-min=11.0')
-    
     print(f'{cffi_settings = }')
     
     return cffi_settings
@@ -99,6 +99,12 @@ cffi_settings = {
     'include_dirs': [],
     'libraries': []
 }
+
+if platform.system() == 'Darwin':
+    if arch == 'x86_64':
+        cffi_settings['extra_compile_args'].append('-mmacosx-version-min=10.9')
+    else:
+        cffi_settings['extra_compile_args'].append('-mmacosx-version-min=11.0')
 
 conan_info = install_libwebp(arch)
 cffi_settings = fetch_cffi_settings(conan_info, cffi_settings)
