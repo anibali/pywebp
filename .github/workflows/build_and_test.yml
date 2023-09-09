@@ -58,19 +58,15 @@ jobs:
           - os: ubuntu-20.04
             cibw_archs_linux: x86_64
             cibw_build: "cp3*-manylinux_*"
-            cibw_before_all: yum install -y libffi-devel # May remove when cffi release py3.12 wheel
           - os: ubuntu-20.04
             cibw_archs_linux: x86_64
             cibw_build: "cp3*-musllinux_*"
-            cibw_before_all: apk add libffi-dev # May remove when cffi release py3.12 wheel
           - os: ubuntu-20.04
             cibw_archs_linux: x86_64
             cibw_build: "cp3*-manylinux_*"
-            cibw_before_all: yum install -y libffi-devel # May remove when cffi release py3.12 wheel
           - os: ubuntu-20.04
             cibw_archs_linux: x86_64
             cibw_build: "cp3*-musllinux_*"
-            cibw_before_all: apk add libffi-dev # May remove when cffi release py3.12 wheel
 #          - os: ubuntu-20.04
 #            cibw_archs_linux: x86_64
 #            cibw_build: "cp3*-musllinux_*"
@@ -139,11 +135,13 @@ jobs:
           CIBW_ARCHS_LINUX: ${{ matrix.cibw_archs_linux }}
           CIBW_ARCHS_WINDOWS: ${{ matrix.cibw_archs_windows }}
           CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs_macos }}
-          CIBW_BEFORE_ALL: ${{ matrix.cibw_before_all }} # May remove when cffi release py3.12 wheel
           # TODO: Use arm64 CI runner when available
           CIBW_TEST_SKIP: "*_arm64"
-          CIBW_PROJECT_REQUIRES_PYTHON: '>=3.8'
-          CIBW_TEST_REQUIRES: pytest setuptools>=45
+          # 3.12 ready when:
+          # cffi releases 3.12 wheel
+          # numpy release 3.12 wheel
+          CIBW_PROJECT_REQUIRES_PYTHON: '>=3.8,<3.12'
+          CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest {package}/tests
       - uses: actions/upload-artifact@v3
         with:
