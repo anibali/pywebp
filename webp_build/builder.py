@@ -10,7 +10,7 @@ from cffi import FFI
 
 import webp_build
 
-PYWEBP_COMPILE_TARGET = os.getenv('PYWEBP_COMPILE_TARGET')
+
 conan_archs = {
     'x86_64': ['amd64', 'x86_64', 'x64'],
     'x86': ['i386', 'i686', 'x86'],
@@ -21,8 +21,9 @@ conan_archs = {
 
 def get_arch():
     arch = None
-    if PYWEBP_COMPILE_TARGET:
-        arch = PYWEBP_COMPILE_TARGET
+
+    if os.getenv('PYWEBP_COMPILE_TARGET'):
+        arch = os.getenv('PYWEBP_COMPILE_TARGET')
     elif platform.architecture()[0] == '32bit' and platform.machine().lower() in conan_archs['x86'] + conan_archs['x86_64']:
         arch = 'x86'
     else:
@@ -119,14 +120,14 @@ cffi_settings = {
 }
 
 arch = get_arch()
+print(f'Detected system architecture as {arch}')
 if platform.system() == 'Darwin':
     if arch == 'x86_64':
         cffi_settings['extra_compile_args'].append('-mmacosx-version-min=10.9')
     else:
         cffi_settings['extra_compile_args'].append('-mmacosx-version-min=11.0')
 
-
-if PYWEBP_COMPILE_TARGET == 'universal2':
+if arch == 'universal2':
     conan_info = install_libwebp('x86_64')
     cffi_settings = fetch_cffi_settings(conan_info, cffi_settings)
     conan_info = install_libwebp('armv8')
