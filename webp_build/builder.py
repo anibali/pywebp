@@ -9,6 +9,29 @@ from cffi import FFI
 
 import webp_build
 
+PYWEBP_COMPILE_TARGET = os.getenv('PYWEBP_COMPILE_TARGET')
+conan_archs = {
+    'x86_64': ['amd64', 'x86_64', 'x64'],
+    'x86': ['i386', 'i686', 'x86'],
+    'armv8': ['arm64', 'aarch64', 'aarch64_be', 'armv8b', 'armv8l'],
+    'ppc64le': ['ppc64le', 'powerpc'],
+    's390x': ['s390', 's390x']
+}
+
+def get_arch():
+    arch = None
+    if PYWEBP_COMPILE_TARGET:
+        arch = PYWEBP_COMPILE_TARGET
+    elif platform.architecture()[0] == '32bit' and platform.machine().lower() in conan_archs['x86'] + conan_archs['x86_64']:
+        arch = 'x86'
+    else:
+        for k, v in conan_archs.items():
+            if platform.machine().lower() in v:
+                arch = k
+                break
+    
+    return arch
+
 def install_libwebp(arch=None):
     # Use Conan to install libwebp
 
@@ -34,7 +57,7 @@ def install_libwebp(arch=None):
     if os.path.isdir('/lib') and len([i for i in os.listdir('/lib') if i.startswith('libc.musl')]) != 0:
         # Need to compile libwebp if musllinux
         build.append('libwebp*')
-    if not platform.machine().lower().startswith(('amd64', 'x86_64', 'x64', 'arm64', 'aarch64', 'armv8')):
+    if not platform.machine().lower() in conan_archs['armv8']:
         build.append('cmake*')
     if build == []:
         build.append('missing')
@@ -85,14 +108,6 @@ def fetch_cffi_settings(conan_info, cffi_settings):
     
     return cffi_settings
 
-arch = None
-if platform.architecture()[0] == '32bit' and platform.machine().lower() in {'amd64', 'x86_64', 'x64', 'i686'}:
-    arch = 'x86'
-elif os.getenv('CIBW_ARCHS_MACOS') and ('arm64' in os.getenv('CIBW_ARCHS_MACOS') or 'universal2' in os.getenv('CIBW_ARCHS_MACOS')):
-    arch = 'armv8'
-elif os.getenv('CIBW_ARCHS_WINDOWS') and 'ARM64' in os.getenv('CIBW_ARCHS_WINDOWS'):
-    arch = 'armv8'
-
 cffi_settings = {
     'extra_objects': [],
     'extra_compile_args': [],
@@ -100,6 +115,7 @@ cffi_settings = {
     'libraries': []
 }
 
+arch = get_arch()
 if platform.system() == 'Darwin':
     if arch == 'x86_64':
         cffi_settings['extra_compile_args'].append('-mmacosx-version-min=10.9')
@@ -108,7 +124,7 @@ if platform.system() == 'Darwin':
 
 conan_info = install_libwebp(arch)
 cffi_settings = fetch_cffi_settings(conan_info, cffi_settings)
-if os.getenv('CIBW_ARCHS_MACOS') and 'universal2' in os.getenv('CIBW_ARCHS_MACOS'):
+if PYWEBP_COMPILE_TARGET == 'universal2':
     # Repeat to install the other architecture version of libwebp
     conan_info = install_libwebp('x86_64')
     cffi_settings = fetch_cffi_settings(conan_info, cffi_settings)

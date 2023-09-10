@@ -56,54 +56,70 @@ jobs:
       matrix:
         include:
           - os: ubuntu-20.04
-            cibw_archs_linux: x86_64
+            cibw_archs: x86_64
             cibw_build: "cp3*-manylinux_*"
+            cibw_environment: PYWEBP_COMPILE_TARGET=x86_64
           - os: ubuntu-20.04
-            cibw_archs_linux: x86_64
+            cibw_archs: x86_64
             cibw_build: "cp3*-musllinux_*"
             cibw_skip: "cp38-musllinux_*"
+            cibw_environment: PYWEBP_COMPILE_TARGET=x86_64
           - os: ubuntu-20.04
-            cibw_archs_linux: aarch64
+            cibw_archs: aarch64
             cibw_build: "cp3*-manylinux_*"
+            cibw_environment: PYWEBP_COMPILE_TARGET=armv8
           # - os: ubuntu-20.04
-          #   cibw_archs_linux: aarch64
+          #   cibw_archs: aarch64
           #   cibw_build: "cp3*-musllinux_*"
+          #   cibw_environment: PYWEBP_COMPILE_TARGET=armv8
           # - os: ubuntu-20.04
-          #   cibw_archs_linux: i686
+          #   cibw_archs: i686
           #   cibw_build: "cp3*-manylinux_*"
+          #   cibw_environment: PYWEBP_COMPILE_TARGET=x86
           # - os: ubuntu-20.04
-          #   cibw_archs_linux: i686
+          #   cibw_archs: i686
           #   cibw_build: "cp3*-musllinux_*"
+          #   cibw_environment: PYWEBP_COMPILE_TARGET=x86
           # - os: ubuntu-20.04
-          #   cibw_archs_linux: ppc64le
+          #   cibw_archs: ppc64le
           #   cibw_build: "cp3*-manylinux_*"
+          #   cibw_environment: PYWEBP_COMPILE_TARGET=ppc64le
           # - os: ubuntu-20.04
-          #   cibw_archs_linux: ppc64le
+          #   cibw_archs: ppc64le
           #   cibw_build: "cp3*-musllinux_*"
+          #   cibw_environment: PYWEBP_COMPILE_TARGET=ppc64le
           # - os: ubuntu-20.04
-          #   cibw_archs_linux: s390x
+          #   cibw_archs: s390x
           #   cibw_build: "cp3*-manylinux_*"
+          #   cibw_environment: PYWEBP_COMPILE_TARGET=s390x
           # - os: ubuntu-20.04
-          #   cibw_archs_linux: s390x
+          #   cibw_archs: s390x
           #   cibw_build: "cp3*-musllinux_*"
+          #   cibw_environment: PYWEBP_COMPILE_TARGET=s390x
           - os: windows-2019
-            cibw_archs_windows: AMD64
+            cibw_archs: AMD64
             cibw_build: "cp3*-win*"
+            cibw_environment: PYWEBP_COMPILE_TARGET=x86_64
           # - os: windows-2019
-          #   cibw_archs_windows: x86
+          #   cibw_archs: x86
           #   cibw_build: "cp3*-win*"
+          #     cibw_environment: PYWEBP_COMPILE_TARGET=x86_64
           - os: windows-2019
-            cibw_archs_windows: ARM64
+            cibw_archs: ARM64
             cibw_build: "cp3*-win*"
+            cibw_environment: PYWEBP_COMPILE_TARGET=armv8
           - os: macos-11
-            cibw_archs_macos: x86_64
+            cibw_archs: x86_64
             cibw_build: "cp3*-macosx_*"
+            cibw_environment: PYWEBP_COMPILE_TARGET=x86_64
           - os: macos-11
-            cibw_archs_macos: arm64
+            cibw_archs: arm64
             cibw_build: "cp3*-macosx_*"
+            cibw_environment: PYWEBP_COMPILE_TARGET=armv8
           - os: macos-11
-            cibw_archs_macos: universal2
+            cibw_archs: universal2
             cibw_build: "cp3*-macosx_*"
+            cibw_environment: PYWEBP_COMPILE_TARGET=universal2
     steps:
       - name: Fetch source distribution
         uses: actions/download-artifact@v3
@@ -112,11 +128,11 @@ jobs:
           path: dist/
       - run: mv dist/webp-*.tar.gz webp.tar.gz
       - name: Set up QEMU
-        if: runner.os == 'Linux' && runner.cibw_archs_linux != 'x86_64'
+        if: runner.os == 'Linux' && runner.cibw_archs != 'x86_64'
         uses: docker/setup-qemu-action@v2
         with:
           platforms: all
-      - name: Build wheels
+      - name: Build wheels for ${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}
         uses: pypa/cibuildwheel@v2.15.0
         with:
           package-dir: webp.tar.gz
@@ -125,9 +141,8 @@ jobs:
           CIBW_BUILD_FRONTEND: build
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_SKIP: ${{ matrix.cibw_skip }}
-          CIBW_ARCHS_LINUX: ${{ matrix.cibw_archs_linux }}
-          CIBW_ARCHS_WINDOWS: ${{ matrix.cibw_archs_windows }}
-          CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs_macos }}
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          CIBW_ENVIRONMENT: ${{ matrix.cibw_environment }}
           # TODO: Use arm64 CI runner when available
           CIBW_TEST_SKIP: "*_arm64"
           # 3.12 ready when:
