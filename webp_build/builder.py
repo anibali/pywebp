@@ -125,11 +125,14 @@ if platform.system() == 'Darwin':
     else:
         cffi_settings['extra_compile_args'].append('-mmacosx-version-min=11.0')
 
-conan_info = install_libwebp(arch)
-cffi_settings = fetch_cffi_settings(conan_info, cffi_settings)
+
 if PYWEBP_COMPILE_TARGET == 'universal2':
-    # Repeat to install the other architecture version of libwebp
     conan_info = install_libwebp('x86_64')
+    cffi_settings = fetch_cffi_settings(conan_info, cffi_settings)
+    conan_info = install_libwebp('armv8')
+    cffi_settings = fetch_cffi_settings(conan_info, cffi_settings)
+else:
+    conan_info = install_libwebp(arch)
     cffi_settings = fetch_cffi_settings(conan_info, cffi_settings)
 
 # Specify C sources to be built by CFFI
