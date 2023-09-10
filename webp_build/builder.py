@@ -4,6 +4,7 @@ from importlib.resources import read_text
 import os
 import subprocess
 import platform
+import shutil
 
 from cffi import FFI
 
@@ -53,14 +54,16 @@ def install_libwebp(arch=None):
     if arch:
         settings.append(f'arch={arch}')
 
-    build = []
+    build = ['missing']
     if os.path.isdir('/lib') and len([i for i in os.listdir('/lib') if i.startswith('libc.musl')]) != 0:
         # Need to compile libwebp if musllinux
         build.append('libwebp*')
-    if not platform.machine().lower() in conan_archs['armv8']:
+        
+    if (not shutil.which('cmake') and 
+        (platform.architecture()[0] == '32bit' or 
+        platform.machine().lower() not in (conan_archs['armv8'] + conan_archs['x86']))):
+
         build.append('cmake*')
-    if build == []:
-        build.append('missing')
     
     subprocess.run(['conan', 'profile', 'detect'])
     result = subprocess.run([
