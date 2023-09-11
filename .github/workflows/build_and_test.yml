@@ -49,7 +49,7 @@ jobs:
           pytest tests/
 
   build-wheels:
-    name: Build ${{ matrix.os }} ${{ matrix.cibw_build }} wheels
+    name: Build ${{ matrix.cibw_build }} wheels
     needs: build-sdist
     runs-on: ${{ matrix.os }}
     strategy:
@@ -57,69 +57,69 @@ jobs:
         include:
           - os: ubuntu-20.04
             cibw_archs: x86_64
-            cibw_build: "cp3*-manylinux_*"
-            cibw_environment: PYWEBP_COMPILE_TARGET=x86_64
+            cibw_build: "cp3*-manylinux_x86_64"
+            compile_target: x86_64
           - os: ubuntu-20.04
             cibw_archs: x86_64
-            cibw_build: "cp3*-musllinux_*"
+            cibw_build: "cp3*-musllinux_x86_64"
             cibw_skip: "cp38-musllinux_*"
-            cibw_environment: PYWEBP_COMPILE_TARGET=x86_64
+            compile_target: x86_64
           - os: ubuntu-20.04
             cibw_archs: aarch64
-            cibw_build: "cp3*-manylinux_*"
-            cibw_environment: PYWEBP_COMPILE_TARGET=armv8
-          # - os: ubuntu-20.04
-          #   cibw_archs: aarch64
-          #   cibw_build: "cp3*-musllinux_*"
-          #   cibw_environment: PYWEBP_COMPILE_TARGET=armv8
-          # - os: ubuntu-20.04
-          #   cibw_archs: i686
-          #   cibw_build: "cp3*-manylinux_*"
-          #   cibw_environment: PYWEBP_COMPILE_TARGET=x86
-          # - os: ubuntu-20.04
-          #   cibw_archs: i686
-          #   cibw_build: "cp3*-musllinux_*"
-          #   cibw_environment: PYWEBP_COMPILE_TARGET=x86
-          # - os: ubuntu-20.04
-          #   cibw_archs: ppc64le
-          #   cibw_build: "cp3*-manylinux_*"
-          #   cibw_environment: PYWEBP_COMPILE_TARGET=ppc64le
-          # - os: ubuntu-20.04
-          #   cibw_archs: ppc64le
-          #   cibw_build: "cp3*-musllinux_*"
-          #   cibw_environment: PYWEBP_COMPILE_TARGET=ppc64le
-          # - os: ubuntu-20.04
-          #   cibw_archs: s390x
-          #   cibw_build: "cp3*-manylinux_*"
-          #   cibw_environment: PYWEBP_COMPILE_TARGET=s390x
-          # - os: ubuntu-20.04
-          #   cibw_archs: s390x
-          #   cibw_build: "cp3*-musllinux_*"
-          #   cibw_environment: PYWEBP_COMPILE_TARGET=s390x
+            cibw_build: "cp3*-manylinux_aarch64"
+            compile_target: armv8
+#          - os: ubuntu-20.04
+#            cibw_archs: aarch64
+#            cibw_build: "cp3*-musllinux_aarch64"
+#            compile_target: armv8
+#          - os: ubuntu-20.04
+#            cibw_archs: i686
+#            cibw_build: "cp3*-manylinux_i686"
+#            compile_target: x86
+#          - os: ubuntu-20.04
+#            cibw_archs: i686
+#            cibw_build: "cp3*-musllinux_i686"
+#            compile_target: x86
+#          - os: ubuntu-20.04
+#            cibw_archs: ppc64le
+#            cibw_build: "cp3*-manylinux_ppc64le"
+#            compile_target: ppc64le
+#          - os: ubuntu-20.04
+#            cibw_archs: ppc64le
+#            cibw_build: "cp3*-musllinux_ppc64le"
+#            compile_target: ppc64le
+#          - os: ubuntu-20.04
+#            cibw_archs: s390x
+#            cibw_build: "cp3*-manylinux_s390x"
+#            compile_target: s390x
+#          - os: ubuntu-20.04
+#            cibw_archs: s390x
+#            cibw_build: "cp3*-musllinux_s390x"
+#            compile_target: s390x
           - os: windows-2019
             cibw_archs: AMD64
-            cibw_build: "cp3*-win*"
-            cibw_environment: PYWEBP_COMPILE_TARGET=x86_64
-          # - os: windows-2019
-          #   cibw_archs: x86
-          #   cibw_build: "cp3*-win*"
-          #     cibw_environment: PYWEBP_COMPILE_TARGET=x86_64
+            cibw_build: "cp3*-win_amd64"
+            compile_target: x86_64
+#          - os: windows-2019
+#            cibw_archs: x86
+#            cibw_build: "cp3*-win32"
+#            compile_target: x86
           - os: windows-2019
             cibw_archs: ARM64
-            cibw_build: "cp3*-win*"
-            cibw_environment: PYWEBP_COMPILE_TARGET=armv8
-          - os: macos-11
-            cibw_archs: x86_64
-            cibw_build: "cp3*-macosx_*"
-            cibw_environment: PYWEBP_COMPILE_TARGET=x86_64
-          - os: macos-11
-            cibw_archs: arm64
-            cibw_build: "cp3*-macosx_*"
-            cibw_environment: PYWEBP_COMPILE_TARGET=armv8
+            cibw_build: "cp3*-win_arm64"
+            compile_target: armv8
+#          - os: macos-11
+#            cibw_archs: x86_64
+#            cibw_build: "cp3*-macosx_x86_64"
+#            compile_target: x86_64
+#          - os: macos-11
+#            cibw_archs: arm64
+#            cibw_build: "cp3*-macosx_arm64"
+#            compile_target: armv8
           - os: macos-11
             cibw_archs: universal2
-            cibw_build: "cp3*-macosx_*"
-            cibw_environment: PYWEBP_COMPILE_TARGET=universal2
+            cibw_build: "cp3*-macosx_universal2"
+            compile_target: universal2
     steps:
       - name: Fetch source distribution
         uses: actions/download-artifact@v3
@@ -142,12 +142,12 @@ jobs:
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_SKIP: ${{ matrix.cibw_skip }}
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          CIBW_ENVIRONMENT: ${{ matrix.cibw_environment }}
+          CIBW_ENVIRONMENT: PYWEBP_COMPILE_TARGET=${{ matrix.compile_target }}
           # TODO: Use arm64 CI runner when available
           CIBW_TEST_SKIP: "*_arm64"
-          # 3.12 ready when:
-          # cffi releases 3.12 wheel
-          # numpy release 3.12 wheel
+          # 3.12 will be ready when:
+          # - cffi releases a 3.12 wheel
+          # - numpy releases a 3.12 wheel
           CIBW_PROJECT_REQUIRES_PYTHON: '>=3.8,<3.12'
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest {package}/tests
