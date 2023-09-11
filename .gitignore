@@ -6,7 +6,6 @@ __pycache__/
 # Temporary files
 *.swp
 *~
-conan_output
 
 # IDE configuration
 .idea/
@@ -20,4 +19,5 @@ core
 /dist/
 /*.egg-info/
 /.eggs/
+/conan_output/
 *.so
