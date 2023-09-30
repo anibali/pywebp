@@ -148,7 +148,7 @@ jobs:
           # 3.12 will be ready when:
           # - cffi releases a 3.12 wheel
           # - numpy releases a 3.12 wheel
-          CIBW_PROJECT_REQUIRES_PYTHON: '>=3.8,<3.12'
+          CIBW_PROJECT_REQUIRES_PYTHON: '>=3.8'
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest {package}/tests
       - uses: actions/upload-artifact@v3
