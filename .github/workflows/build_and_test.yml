@@ -145,9 +145,6 @@ jobs:
           CIBW_ENVIRONMENT: PYWEBP_COMPILE_TARGET=${{ matrix.compile_target }}
           # TODO: Use arm64 CI runner when available
           CIBW_TEST_SKIP: "*_arm64"
-          # 3.12 will be ready when:
-          # - cffi releases a 3.12 wheel
-          # - numpy releases a 3.12 wheel
           CIBW_PROJECT_REQUIRES_PYTHON: '>=3.8'
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest {package}/tests
