@@ -3,7 +3,7 @@ import shutil
 
 class LibwebpRecipe(ConanFile):
     def requirements(self):
-        self.requires('libwebp/1.3.1')
+        self.requires('libwebp/1.3.2')
 
     def build_requirements(self):
         if not shutil.which('cmake'):
