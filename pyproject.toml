@@ -1,6 +1,6 @@
 [project]
 name = "webp"
-version = "0.2.0"
+version = "0.3.0"
 description = "Python bindings for WebP"
 readme = { content-type = "text/markdown", file = "README.md" }
 authors = [{ name = "Aiden Nibali", email = "dismaldenizen@gmail.com" }]
@@ -29,7 +29,7 @@ dev = [
 ]
 
 [project.urls]
-homepage = "https://github.com/anibali/pywebp"
+Homepage = "https://github.com/anibali/pywebp"
 
 [build-system]
 requires = [
