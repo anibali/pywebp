@@ -22,8 +22,8 @@ CONAN_ARCHS = {
 def get_arch() -> str:
     """Get the Conan compilation target architecture.
 
-    If not explicitly set using the `PYWEBP_COMPILE_TARGET` environment variable, this will be determined using the
-    host machine's platform information.
+    If not explicitly set using the `PYWEBP_COMPILE_TARGET` environment variable, this will be
+    determined using the host machine's platform information.
     """
     env_arch = os.getenv('PYWEBP_COMPILE_TARGET', '')
     if env_arch:
@@ -63,10 +63,10 @@ def install_libwebp(arch: str) -> dict:
     settings.append(f'arch={arch}')
 
     build = ['missing']
-    if os.path.isdir('/lib') and len([i for i in os.listdir('/lib') if i.startswith('libc.musl')]) != 0:
+    if os.path.isdir('/lib') and any(e.startswith('libc.musl') for e in os.listdir('/lib')):
         # Need to compile libwebp if musllinux
         build.append('libwebp*')
-        
+
     if (
         not shutil.which('cmake') and (
             platform.architecture()[0] == '32bit' or
@@ -74,7 +74,7 @@ def install_libwebp(arch: str) -> dict:
         )
     ):
         build.append('cmake*')
-    
+
     subprocess.run(['conan', 'profile', 'detect'])
 
     conan_output = os.path.join('conan_output', arch)
@@ -86,7 +86,7 @@ def install_libwebp(arch: str) -> dict:
         '-of', conan_output, '--deployer=direct_deploy', '--format=json', '.'
         ], stdout=subprocess.PIPE).stdout.decode()
     conan_info = json.loads(result)
-    
+
     return conan_info
 
 
@@ -97,7 +97,7 @@ def fetch_cffi_settings(conan_info: dict, cffi_settings: dict):
         if dep.get('package_folder') is None:
             continue
 
-        for cpp_info in reversed(dep['cpp_info'].values()):
+        for cpp_info in dep['cpp_info'].values():
             for include_dir in (cpp_info.get('includedirs') or []):
                 if include_dir not in cffi_settings['include_dirs']:
                     cffi_settings['include_dirs'].append(include_dir)
