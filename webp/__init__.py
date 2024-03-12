@@ -2,34 +2,36 @@ from enum import Enum
 
 import numpy as np
 from PIL import Image
+from typing import Any, Optional, Literal, List
 
 from _webp import ffi, lib
 
+SupportedColorMode = Literal["RGB", "RGBa", "RGBA"]
 
 class WebPPreset(Enum):
-    DEFAULT = lib.WEBP_PRESET_DEFAULT  # Default
-    PICTURE = lib.WEBP_PRESET_PICTURE  # Indoor photo, portrait-like
-    PHOTO = lib.WEBP_PRESET_PHOTO  # Outdoor photo with natural lighting
-    DRAWING = lib.WEBP_PRESET_DRAWING  # Drawing with high-contrast details
-    ICON = lib.WEBP_PRESET_ICON  # Small-sized colourful image
-    TEXT = lib.WEBP_PRESET_TEXT  # Text-like
+    DEFAULT: int = lib.WEBP_PRESET_DEFAULT  # Default
+    PICTURE: int = lib.WEBP_PRESET_PICTURE  # Indoor photo, portrait-like
+    PHOTO: int = lib.WEBP_PRESET_PHOTO  # Outdoor photo with natural lighting
+    DRAWING: int = lib.WEBP_PRESET_DRAWING  # Drawing with high-contrast details
+    ICON: int = lib.WEBP_PRESET_ICON  # Small-sized colourful image
+    TEXT: int = lib.WEBP_PRESET_TEXT  # Text-like
 
 
 class WebPColorMode(Enum):
-    RGB = lib.MODE_RGB
-    RGBA = lib.MODE_RGBA
-    BGR = lib.MODE_BGR
-    BGRA = lib.MODE_BGRA
-    ARGB = lib.MODE_ARGB
-    RGBA_4444 = lib.MODE_RGBA_4444
-    RGB_565 = lib.MODE_RGB_565
-    rgbA = lib.MODE_rgbA
-    bgrA = lib.MODE_bgrA
-    Argb = lib.MODE_Argb
-    rgbA_4444 = lib.MODE_rgbA_4444
-    YUV = lib.MODE_YUV
-    YUVA = lib.MODE_YUVA
-    LAST = lib.MODE_LAST
+    RGB: int = lib.MODE_RGB
+    RGBA: int = lib.MODE_RGBA
+    BGR: int = lib.MODE_BGR
+    BGRA: int = lib.MODE_BGRA
+    ARGB: int = lib.MODE_ARGB
+    RGBA_4444: int = lib.MODE_RGBA_4444
+    RGB_565: int = lib.MODE_RGB_565
+    rgbA: int = lib.MODE_rgbA
+    bgrA: int = lib.MODE_bgrA
+    Argb: int = lib.MODE_Argb
+    rgbA_4444: int = lib.MODE_rgbA_4444
+    YUV: int = lib.MODE_YUV
+    YUVA: int = lib.MODE_YUVA
+    LAST: int = lib.MODE_LAST
 
 
 class WebPError(Exception):
@@ -37,7 +39,7 @@ class WebPError(Exception):
 
 
 class WebPConfig:
-    DEFAULT_QUALITY = 75.0
+    DEFAULT_QUALITY: float = 75.0
 
     def __init__(self, ptr):
         self.ptr = ptr
@@ -47,7 +49,7 @@ class WebPConfig:
         return self.ptr.lossless != 0
 
     @lossless.setter
-    def lossless(self, lossless):
+    def lossless(self, lossless: bool):
         self.ptr.lossless = 1 if lossless else 0
 
     @property
@@ -55,7 +57,7 @@ class WebPConfig:
         return self.ptr.quality
 
     @quality.setter
-    def quality(self, quality):
+    def quality(self, quality: float):
         self.ptr.quality = quality
 
     @property
@@ -63,15 +65,18 @@ class WebPConfig:
         return self.ptr.method
 
     @method.setter
-    def method(self, method):
+    def method(self, method: int):
         self.ptr.method = method
 
     def validate(self):
         return lib.WebPValidateConfig(self.ptr) != 0
 
     @staticmethod
-    def new(preset=WebPPreset.DEFAULT, quality=None, lossless=False, lossless_preset=None,
-            method=None):
+    def new(preset: WebPPreset = WebPPreset.DEFAULT,
+            quality: Optional[None] = None,
+            lossless: bool = False,
+            lossless_preset: Optional[int] = None,
+            method: Optional[int] = None):
         """Create a new WebPConfig instance to describe encoder settings.
 
         1. The preset is loaded, setting default values for quality factor (75.0) and compression
@@ -136,7 +141,7 @@ class WebPData:
         buf = ffi.buffer(self._data_ref, self.size)
         return buf
 
-    def decode(self, color_mode=WebPColorMode.RGBA):
+    def decode(self, color_mode: WebPColorMode = WebPColorMode.RGBA):
         dec_config = WebPDecoderConfig.new()
         dec_config.read_features(self)
 
@@ -172,7 +177,7 @@ class WebPData:
         return arr
 
     @staticmethod
-    def from_buffer(buf):
+    def from_buffer(buf: bytes):
         ptr = ffi.new('WebPData*')
         lib.WebPDataInit(ptr)
         data_ref = ffi.from_buffer(buf)
@@ -225,7 +230,7 @@ class WebPPicture:
     def __del__(self):
         lib.WebPPictureFree(self.ptr)
 
-    def encode(self, config=None):
+    def encode(self, config: Optional[WebPConfig] = None):
         if config is None:
             config = WebPConfig.new()
         writer = WebPMemoryWriter.new()
@@ -241,7 +246,7 @@ class WebPPicture:
             f.write(buf)
 
     @staticmethod
-    def new(width, height):
+    def new(width: int, height: int):
         ptr = ffi.new('WebPPicture*')
         if lib.WebPPictureInit(ptr) == 0:
             raise WebPError('version mismatch')
@@ -252,7 +257,7 @@ class WebPPicture:
         return WebPPicture(ptr)
 
     @staticmethod
-    def from_numpy(arr, *, pilmode=None):
+    def from_numpy(arr, *, pilmode: Optional[SupportedColorMode] = None):
         ptr = ffi.new('WebPPicture*')
         if lib.WebPPictureInit(ptr) == 0:
             raise WebPError('version mismatch')
@@ -288,7 +293,7 @@ class WebPPicture:
         return WebPPicture(ptr)
 
     @staticmethod
-    def from_pil(img):
+    def from_pil(img: Image.Image):
         if img.mode == 'P':
             if 'transparency' in img.info:
                 img = img.convert('RGBA')
@@ -336,7 +341,7 @@ class WebPAnimEncoderOptions:
         return self.ptr.minimize_size != 0
 
     @minimize_size.setter
-    def minimize_size(self, minimize_size):
+    def minimize_size(self, minimize_size: bool):
         self.ptr.minimize_size = 1 if minimize_size else 0
 
     @property
@@ -344,11 +349,11 @@ class WebPAnimEncoderOptions:
         return self.ptr.allow_mixed != 0
 
     @allow_mixed.setter
-    def allow_mixed(self, allow_mixed):
+    def allow_mixed(self, allow_mixed: bool):
         self.ptr.allow_mixed = 1 if allow_mixed else 0
 
     @staticmethod
-    def new(minimize_size=False, allow_mixed=False):
+    def new(minimize_size: bool = False, allow_mixed: bool = False):
         ptr = ffi.new('WebPAnimEncoderOptions*')
         if lib.WebPAnimEncoderOptionsInit(ptr) == 0:
             raise WebPError('version mismatch')
@@ -366,7 +371,11 @@ class WebPAnimEncoder:
     def __del__(self):
         lib.WebPAnimEncoderDelete(self.ptr)
 
-    def encode_frame(self, frame, timestamp_ms, config=None):
+    def encode_frame(self,
+                     frame: WebPPicture,
+                     timestamp_ms: int,
+                     config: Optional[WebPConfig] = None
+                     ):
         """Add a frame to the animation.
 
         Args:
@@ -379,7 +388,7 @@ class WebPAnimEncoder:
         if lib.WebPAnimEncoderAdd(self.ptr, frame.ptr, timestamp_ms, config.ptr) == 0:
             raise WebPError('encoding error: ' + self.ptr.error_code)
 
-    def assemble(self, end_timestamp_ms):
+    def assemble(self, end_timestamp_ms: int):
         if lib.WebPAnimEncoderAdd(self.ptr, ffi.NULL, end_timestamp_ms, ffi.NULL) == 0:
             raise WebPError('encoding error: ' + self.ptr.error_code)
         _webp_data = _WebPData()
@@ -388,7 +397,7 @@ class WebPAnimEncoder:
         return _webp_data.done()
 
     @staticmethod
-    def new(width, height, enc_opts=None):
+    def new(width: int, height: int, enc_opts: Optional[WebPAnimEncoderOptions] = None):
         if enc_opts is None:
             enc_opts = WebPAnimEncoderOptions.new()
         ptr = lib.WebPAnimEncoderNew(width, height, enc_opts.ptr)
@@ -404,7 +413,7 @@ class WebPAnimDecoderOptions:
         return WebPColorMode(self.ptr.color_mode)
 
     @color_mode.setter
-    def color_mode(self, color_mode):
+    def color_mode(self, color_mode: WebPColorMode):
         self.ptr.color_mode = color_mode.value
 
     @property
@@ -412,11 +421,11 @@ class WebPAnimDecoderOptions:
         return self.ptr.use_threads != 0
 
     @use_threads.setter
-    def use_threads(self, use_threads):
+    def use_threads(self, use_threads: bool):
         self.ptr.use_threads = 1 if use_threads else 0
 
     @staticmethod
-    def new(use_threads=False, color_mode=WebPColorMode.RGBA):
+    def new(use_threads: bool = False, color_mode: WebPColorMode = WebPColorMode.RGBA):
         ptr = ffi.new('WebPAnimDecoderOptions*')
         if lib.WebPAnimDecoderOptionsInit(ptr) == 0:
             raise WebPError('version mismatch')
@@ -488,7 +497,7 @@ class WebPAnimDecoder:
             yield arr, timestamp_ms
 
     @staticmethod
-    def new(webp_data, dec_opts=None):
+    def new(webp_data: WebPData, dec_opts: Optional[WebPAnimDecoderOptions] = None):
         if dec_opts is None:
             dec_opts = WebPAnimDecoderOptions.new()
         ptr = lib.WebPAnimDecoderNew(webp_data.ptr, dec_opts.ptr)
@@ -500,7 +509,12 @@ class WebPAnimDecoder:
         return WebPAnimDecoder(ptr, dec_opts, anim_info)
 
 
-def imwrite(file_path, arr, *, pilmode=None, **kwargs):
+def imwrite(
+        file_path: str,
+        arr: "np.ndarray[Any, Any]",
+        *args: Any,
+        pilmode: Optional[SupportedColorMode] = None,
+        **kwargs: Any):
     """Encode numpy array image with WebP and save to file.
 
     Args:
@@ -514,7 +528,7 @@ def imwrite(file_path, arr, *, pilmode=None, **kwargs):
     pic.save(file_path, config)
 
 
-def imread(file_path, *, pilmode='RGBA'):
+def imread(file_path: str, *args: Any, pilmode: SupportedColorMode = 'RGBA'):
     """Load from file and decode numpy array with WebP.
 
     Args:
@@ -539,7 +553,13 @@ def imread(file_path, *, pilmode='RGBA'):
     return arr
 
 
-def _mimwrite_pics(file_path, pics, *, fps=30.0, **kwargs):
+def _mimwrite_pics(
+        file_path: str, 
+        pics: List[WebPPicture], 
+        *args: Any, 
+        fps: float = 30.0, 
+        **kwargs: Any
+        ):
     enc_opts = WebPAnimEncoderOptions.new()
     enc = WebPAnimEncoder.new(pics[0].ptr.width, pics[0].ptr.height, enc_opts)
     config = WebPConfig.new(**kwargs)
@@ -553,7 +573,13 @@ def _mimwrite_pics(file_path, pics, *, fps=30.0, **kwargs):
         f.write(anim_data.buffer())
 
 
-def mimwrite(file_path, arrs, *, fps=30.0, pilmode=None, **kwargs):
+def mimwrite(
+        file_path: str,
+        arrs: "List[np.ndarray[Any, Any]]",
+        *args: Any,
+        fps: float = 30.0,
+        pilmode: Optional[SupportedColorMode] = None,
+        **kwargs: Any):
     """Encode a sequence of PIL Images with WebP and save to file.
 
     Args:
@@ -566,7 +592,12 @@ def mimwrite(file_path, arrs, *, fps=30.0, pilmode=None, **kwargs):
     _mimwrite_pics(file_path, pics, fps=fps, **kwargs)
 
 
-def mimread(file_path, *, fps=None, use_threads=True, pilmode='RGBA'):
+def mimread(
+        file_path: str,
+        *args: Any,
+        fps: Optional[float] = None,
+        use_threads: bool = True,
+        pilmode: SupportedColorMode = 'RGBA'):
     """Load from file and decode a list of numpy arrays with WebP.
 
     Args:
@@ -613,7 +644,7 @@ def mimread(file_path, *, fps=None, use_threads=True, pilmode='RGBA'):
     return arrs
 
 
-def save_image(img, file_path, **kwargs):
+def save_image(img: Image.Image, file_path: str, **kwargs: Any):
     """Encode PIL Image with WebP and save to file.
 
     Args:
@@ -626,7 +657,7 @@ def save_image(img, file_path, **kwargs):
     pic.save(file_path, config)
 
 
-def load_image(file_path, mode='RGBA'):
+def load_image(file_path: str, mode: SupportedColorMode = 'RGBA'):
     """Load from file and decode PIL Image with WebP.
 
     Args:
@@ -640,7 +671,7 @@ def load_image(file_path, mode='RGBA'):
     return Image.fromarray(arr, mode)
 
 
-def save_images(imgs, file_path, **kwargs):
+def save_images(imgs: List[Image.Image], file_path, **kwargs):
     """Encode a sequence of PIL Images with WebP and save to file.
 
     Args:
@@ -652,7 +683,7 @@ def save_images(imgs, file_path, **kwargs):
     _mimwrite_pics(file_path, pics, **kwargs)
 
 
-def load_images(file_path, mode='RGBA', **kwargs):
+def load_images(file_path: str, mode: SupportedColorMode = 'RGBA', **kwargs: Any):
     """Load from file and decode a sequence of PIL Images with WebP.
 
     Args:
