@@ -108,15 +108,15 @@ jobs:
             cibw_archs: ARM64
             cibw_build: "cp3*-win_arm64"
             compile_target: armv8
-#          - os: macos-11
+#          - os: macos-12
 #            cibw_archs: x86_64
 #            cibw_build: "cp3*-macosx_x86_64"
 #            compile_target: x86_64
-#          - os: macos-11
+#          - os: macos-14
 #            cibw_archs: arm64
 #            cibw_build: "cp3*-macosx_arm64"
 #            compile_target: armv8
-          - os: macos-11
+          - os: macos-14
             cibw_archs: universal2
             cibw_build: "cp3*-macosx_universal2"
             compile_target: universal2
@@ -133,7 +133,7 @@ jobs:
         with:
           platforms: all
       - name: Build wheels for ${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}
-        uses: pypa/cibuildwheel@v2.16.5
+        uses: pypa/cibuildwheel@v2.17.0
         with:
           package-dir: webp.tar.gz
           output-dir: dist
