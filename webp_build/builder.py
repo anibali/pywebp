@@ -3,7 +3,7 @@ import os
 import platform
 import shutil
 import subprocess
-from typing import Any
+from typing import Any, Dict, List
 from importlib.resources import read_text
 
 from cffi import FFI
@@ -43,10 +43,10 @@ def get_arch() -> str:
     raise RuntimeError('Unable to determine the compilation target architecture')
 
 
-def install_libwebp(arch: str) -> "dict[Any, Any]":
+def install_libwebp(arch: str) -> Dict[Any, Any]:
     """Install libwebp using Conan.
     """
-    settings: "list[str]" = []
+    settings: List[str] = []
 
     if platform.system() == 'Windows':
         settings.append('os=Windows')
@@ -91,7 +91,7 @@ def install_libwebp(arch: str) -> "dict[Any, Any]":
     return conan_info
 
 
-def fetch_cffi_settings(conan_info: "dict[Any, Any]", cffi_settings: "dict[str, list[str]]"):
+def fetch_cffi_settings(conan_info: Dict[Any, Any], cffi_settings: Dict[str, List[str]]):
     """Find header files and libraries in libwebp.
     """
     for dep in conan_info['graph']['nodes'].values():
@@ -120,7 +120,7 @@ def fetch_cffi_settings(conan_info: "dict[Any, Any]", cffi_settings: "dict[str, 
 
 
 def create_ffibuilder():
-    cffi_settings: "dict[str, list[str]]" = {
+    cffi_settings: Dict[str, List[str]] = {
         'extra_objects': [],
         'extra_compile_args': [],
         'include_dirs': [],
