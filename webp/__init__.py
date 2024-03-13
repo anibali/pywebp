@@ -139,7 +139,7 @@ class WebPData:
         buf = ffi.buffer(self._data_ref, self.size)
         return buf
 
-    def decode(self, color_mode: WebPColorMode = WebPColorMode.RGBA) -> np.ndarray[Any, np.dtype[np.uint8]]:
+    def decode(self, color_mode: WebPColorMode = WebPColorMode.RGBA) -> "np.ndarray[Any, np.dtype[np.uint8]]":
         dec_config = WebPDecoderConfig.new()
         dec_config.read_features(self)
 
@@ -255,7 +255,7 @@ class WebPPicture:
         return WebPPicture(ptr)
 
     @staticmethod
-    def from_numpy(arr: np.ndarray[Any, np.dtype[np.uint8]], *, pilmode: Optional[str] = None) -> "WebPPicture":
+    def from_numpy(arr: "np.ndarray[Any, np.dtype[np.uint8]]", *, pilmode: Optional[str] = None) -> "WebPPicture":
         ptr = ffi.new('WebPPicture*')
         if lib.WebPPictureInit(ptr) == 0:
             raise WebPError('version mismatch')
@@ -470,7 +470,7 @@ class WebPAnimDecoder:
     def reset(self) -> None:
         lib.WebPAnimDecoderReset(self.ptr)
 
-    def decode_frame(self) -> Tuple[np.ndarray[Any, np.dtype[np.uint8]], int]:
+    def decode_frame(self) -> Tuple["np.ndarray[Any, np.dtype[np.uint8]]", int]:
         """Decodes the next frame of the animation.
 
         Returns:
@@ -489,7 +489,7 @@ class WebPAnimDecoder:
         timestamp_ms = timestamp_ptr[0]
         return arr, timestamp_ms
 
-    def frames(self) -> Generator[Tuple[np.ndarray[Any, np.dtype[np.uint8]], int], None, None]:
+    def frames(self) -> Generator[Tuple["np.ndarray[Any, np.dtype[np.uint8]]", int], None, None]:
         while self.has_more_frames():
             arr, timestamp_ms = self.decode_frame()
             yield arr, timestamp_ms
@@ -526,7 +526,7 @@ def imwrite(
     pic.save(file_path, config)
 
 
-def imread(file_path: str, *args: Any, pilmode: str = 'RGBA') -> np.ndarray[Any, np.dtype[np.uint8]]:
+def imread(file_path: str, *args: Any, pilmode: str = 'RGBA') -> "np.ndarray[Any, np.dtype[np.uint8]]":
     """Load from file and decode numpy array with WebP.
 
     Args:
@@ -595,7 +595,7 @@ def mimread(
         *args: Any,
         fps: Optional[float] = None,
         use_threads: bool = True,
-        pilmode: str = 'RGBA') -> List[np.ndarray[Any, np.dtype[np.uint8]]]:
+        pilmode: str = 'RGBA') -> List["np.ndarray[Any, np.dtype[np.uint8]]"]:
     """Load from file and decode a list of numpy arrays with WebP.
 
     Args:
@@ -621,7 +621,7 @@ def mimread(
     else:
         raise WebPError('unsupported color mode: ' + pilmode)
 
-    arrs: List[np.ndarray[Any, np.dtype[np.uint8]]] = []
+    arrs: List["np.ndarray[Any, np.dtype[np.uint8]]"] = []
 
     with open(file_path, 'rb') as f:
         webp_data = WebPData.from_buffer(f.read())
