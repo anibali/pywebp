@@ -509,7 +509,7 @@ class WebPAnimDecoder:
 
 def imwrite(
         file_path: str,
-        arr: "np.ndarray[Any, Any]",
+        arr: "np.ndarray[Any, np.dtype[np.uint8]]",
         *args: Any,
         pilmode: Optional[str] = None,
         **kwargs: Any) -> None:
@@ -573,7 +573,7 @@ def _mimwrite_pics(
 
 def mimwrite(
         file_path: str,
-        arrs: List[np.ndarray[Any, Any]],
+        arrs: "List[np.ndarray[Any, np.dtype[np.uint8]]]",
         *args: Any,
         fps: float = 30.0,
         pilmode: Optional[str] = None,
