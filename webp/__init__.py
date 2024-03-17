@@ -552,10 +552,10 @@ def imread(file_path: str, *args: Any, pilmode: str = 'RGBA') -> "np.ndarray[Any
 
 
 def _mimwrite_pics(
-        file_path: str, 
-        pics: List[WebPPicture], 
-        *args: Any, 
-        fps: float = 30.0, 
+        file_path: str,
+        pics: List[WebPPicture],
+        *args: Any,
+        fps: float = 30.0,
         **kwargs: Any
         ) -> None:
     enc_opts = WebPAnimEncoderOptions.new()
