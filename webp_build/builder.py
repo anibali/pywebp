@@ -149,7 +149,7 @@ def create_ffibuilder():
     # Specify C sources to be built by CFFI
     ffibuilder = FFI()
     ffibuilder.set_source(
-        '_webp',
+        'webp._webp',
         read_text(webp_build, 'source.c'),
         extra_objects=cffi_settings['extra_objects'],
         extra_compile_args=cffi_settings['extra_compile_args'],
