@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 from typing import Any, Generator, List, Optional, Tuple
 
-from _webp import ffi, lib
+from webp._webp import ffi, lib
 
 class WebPPreset(Enum):
     DEFAULT: int = lib.WEBP_PRESET_DEFAULT  # Default
