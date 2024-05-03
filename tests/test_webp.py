@@ -148,6 +148,16 @@ class TestWebP:
             expected = np.asarray(img, dtype=np.uint8)
             assert_array_equal(actual, expected)
 
+    def test_image_target_size(self):
+        rng = np.random.RandomState(42)
+        img = Image.fromarray(rng.randint(0, 256, size=(128, 128, 3), dtype=np.uint8))
+
+        with TemporaryDirectory() as tmpdir:
+            file_name = os.path.join(tmpdir, 'image.webp')
+
+            webp.save_image(img, file_name, target_size=5000, passes=6)
+            assert os.path.getsize(file_name) <= 5000
+
     def test_image_palette(self, image_bars_palette):
         with TemporaryDirectory() as tmpdir:
             file_name = os.path.join(tmpdir, 'image.webp')
