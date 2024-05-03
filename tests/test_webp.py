@@ -21,7 +21,7 @@ class TestWebP:
     def test_image(self):
         img = Image.new('RGB', (32, 16))
         draw = ImageDraw.Draw(img)
-        draw.rectangle([0, 0, 7, 15], fill=(255, 0, 0))
+        draw.rectangle((0, 0, 7, 15), fill=(255, 0, 0))
 
         pic = webp.WebPPicture.from_pil(img)
         config = webp.WebPConfig.new(lossless=True)
@@ -47,7 +47,7 @@ class TestWebP:
             img = Image.new('RGBA', (width, height))
             draw = ImageDraw.Draw(img)
             x = i * (width/4)
-            draw.rectangle([x, 0, x + (width/4-1), height-1], fill=(255, 0, 0))
+            draw.rectangle((x, 0, x + (width/4-1), height-1), fill=(255, 0, 0))
             imgs.append(img)
 
         webp_pics = [webp.WebPPicture.from_pil(img) for img in imgs]
@@ -88,9 +88,9 @@ class TestWebP:
         for i in range(4):
             img = Image.new('RGBA', (width, height))
             draw = ImageDraw.Draw(img)
-            draw.rectangle([0, 0, width-1, height-1], fill=(0, 0, 255))
+            draw.rectangle((0, 0, width-1, height-1), fill=(0, 0, 255))
             x = i * (width/4)
-            draw.rectangle([x, 0, x + (width/4-1), height-1], fill=(255, 0, 0))
+            draw.rectangle((x, 0, x + (width/4-1), height-1), fill=(255, 0, 0))
             imgs.append(img)
 
         with TemporaryDirectory() as tmpdir:
@@ -113,12 +113,12 @@ class TestWebP:
         height = 64
         img1 = Image.new('RGB', (width, height))
         draw = ImageDraw.Draw(img1)
-        draw.rectangle([0, 0, width-1, height-1], fill=(0, 0, 255))
-        draw.rectangle([0, 0, (width/4-1), height-1], fill=(255, 0, 0))
+        draw.rectangle((0, 0, width-1, height-1), fill=(0, 0, 255))
+        draw.rectangle((0, 0, (width/4-1), height-1), fill=(255, 0, 0))
         img2 = Image.new('RGB', (width, height))
         draw = ImageDraw.Draw(img2)
-        draw.rectangle([0, 0, width-1, height-1], fill=(0, 0, 255))
-        draw.rectangle([0, 0, (width/4-1), height-1], fill=(0, 255, 0))
+        draw.rectangle((0, 0, width-1, height-1), fill=(0, 0, 255))
+        draw.rectangle((0, 0, (width/4-1), height-1), fill=(0, 255, 0))
 
         imgs = [img1, img1, img2, img2]
 
@@ -135,8 +135,8 @@ class TestWebP:
         height = 64
         img = Image.new('RGB', (width, height))
         draw = ImageDraw.Draw(img)
-        draw.rectangle([0, 0, width-1, height-1], fill=(0, 0, 255))
-        draw.rectangle([0, 0, (width/4-1), height-1], fill=(255, 0, 0))
+        draw.rectangle((0, 0, width-1, height-1), fill=(0, 0, 255))
+        draw.rectangle((0, 0, (width/4-1), height-1), fill=(255, 0, 0))
 
         with TemporaryDirectory() as tmpdir:
             file_name = os.path.join(tmpdir, 'image.webp')
@@ -199,5 +199,5 @@ class TestWebP:
 
     def test_picture_from_bad_array_shape(self):
         with pytest.raises(webp.WebPError) as ex_info:
-            webp.WebPPicture.from_numpy(np.ones([2, 2, 2, 2]))
+            webp.WebPPicture.from_numpy(np.ones([2, 2, 2, 2], dtype=np.uint8))
         assert str(ex_info.value) == 'unexpected array shape: (2, 2, 2, 2)'
