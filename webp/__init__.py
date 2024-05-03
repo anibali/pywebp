@@ -71,7 +71,7 @@ class WebPConfig:
 
     @staticmethod
     def new(preset: WebPPreset = WebPPreset.DEFAULT,
-            quality: Optional[None] = None,
+            quality: Optional[float] = None,
             lossless: bool = False,
             lossless_preset: Optional[int] = None,
             method: Optional[int] = None) -> "WebPConfig":
