@@ -7,6 +7,14 @@ typedef enum WebPPreset {
   WEBP_PRESET_TEXT
 } WebPPreset;
 
+typedef enum WebPImageHint {
+  WEBP_HINT_DEFAULT = 0,
+  WEBP_HINT_PICTURE,
+  WEBP_HINT_PHOTO,
+  WEBP_HINT_GRAPH,
+  WEBP_HINT_LAST
+} WebPImageHint;
+
 typedef enum WEBP_CSP_MODE {
   MODE_RGB = 0, MODE_RGBA = 1,
   MODE_BGR = 2, MODE_BGRA = 3,
@@ -110,6 +118,19 @@ struct WebPConfig {
   int lossless;
   float quality;
   int method;
+  WebPImageHint image_hint;
+  int target_size;
+  float target_PSNR;
+  int segments;
+  int sns_strength;
+  int filter_strength;
+  int filter_sharpness;
+  int filter_type;
+  int autofilter;
+  int alpha_compression;
+  int alpha_filtering;
+  int alpha_quality;
+  int pass;
   ...;
 };
 typedef struct WebPConfig WebPConfig;

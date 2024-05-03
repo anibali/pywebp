@@ -11,6 +11,11 @@ class TestWebPConfig:
         assert config.method == 4
         del config
 
+    def test_default_target_size_override(self):
+        config = webp.WebPConfig.new(target_size=1000)
+        assert config.target_size == 1000
+        del config
+
     def test_default_lossless(self):
         config = webp.WebPConfig.new(lossless=True)
         assert config.lossless is True

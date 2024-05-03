@@ -66,6 +66,22 @@ class WebPConfig:
     def method(self, method: int) -> None:
         self.ptr.method = method
 
+    @property
+    def target_size(self) -> int:
+        return self.ptr.target_size
+
+    @target_size.setter
+    def target_size(self, target_size: int) -> None:
+        self.ptr.target_size = target_size
+
+    @property
+    def passes(self) -> int:
+        return getattr(self.ptr, "pass")
+
+    @passes.setter
+    def passes(self, passes: int) -> None:
+        setattr(self.ptr, "pass", passes)
+
     def validate(self) -> bool:
         return lib.WebPValidateConfig(self.ptr) != 0
 
@@ -74,7 +90,10 @@ class WebPConfig:
             quality: Optional[float] = None,
             lossless: bool = False,
             lossless_preset: Optional[int] = None,
-            method: Optional[int] = None) -> "WebPConfig":
+            method: Optional[int] = None,
+            *,
+            target_size: Optional[int] = None,
+            passes: Optional[int] = None) -> "WebPConfig":
         """Create a new WebPConfig instance to describe encoder settings.
 
         1. The preset is loaded, setting default values for quality factor (75.0) and compression
@@ -98,6 +117,9 @@ class WebPConfig:
                 factor and compression method together. Effective default is 6.
             method (int, optional): Compression method (0=fast but big, 6=small but slow).
                 Overrides presets. Effective default is 4.
+            target_size (int, optional): Desired target size in bytes. When setting this, you
+                will likely want to set passes to a value greater than 1 also.
+            passes (int, optional): Number of entropy-analysis passes (between 1 and 10 inclusive).
 
         Returns:
             WebPConfig: The new WebPConfig instance.
@@ -120,6 +142,10 @@ class WebPConfig:
             config.quality = quality
         if method is not None:
             config.method = method
+        if target_size is not None:
+            config.target_size = target_size
+        if passes is not None:
+            config.passes = passes
 
         if not config.validate():
             raise WebPError('config is not valid')
