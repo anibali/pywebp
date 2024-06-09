@@ -548,7 +548,6 @@ class WebPAnimDecoder:
 def imwrite(
         file_path: str,
         arr: "np.ndarray[Any, np.dtype[np.uint8]]",
-        *args: Any,
         pilmode: Optional[str] = None,
         **kwargs: Any) -> None:
     """Encode numpy array image with WebP and save to file.
@@ -564,7 +563,7 @@ def imwrite(
     pic.save(file_path, config)
 
 
-def imread(file_path: str, *args: Any, pilmode: str = 'RGBA') -> "np.ndarray[Any, np.dtype[np.uint8]]":
+def imread(file_path: str, pilmode: str = 'RGBA') -> "np.ndarray[Any, np.dtype[np.uint8]]":
     """Load from file and decode numpy array with WebP.
 
     Args:
@@ -592,7 +591,6 @@ def imread(file_path: str, *args: Any, pilmode: str = 'RGBA') -> "np.ndarray[Any
 def _mimwrite_pics(
         file_path: str,
         pics: List[WebPPicture],
-        *args: Any,
         fps: float = 30.0,
         loop_count: Optional[int] = None,
         **kwargs: Any
@@ -615,7 +613,6 @@ def _mimwrite_pics(
 def mimwrite(
         file_path: str,
         arrs: "List[np.ndarray[Any, np.dtype[np.uint8]]]",
-        *args: Any,
         fps: float = 30.0,
         loop_count: Optional[int] = None,
         pilmode: Optional[str] = None,
@@ -638,7 +635,6 @@ def mimwrite(
 
 def mimread(
         file_path: str,
-        *args: Any,
         fps: Optional[float] = None,
         use_threads: bool = True,
         pilmode: str = 'RGBA') -> List["np.ndarray[Any, np.dtype[np.uint8]]"]:
