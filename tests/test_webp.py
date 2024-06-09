@@ -105,6 +105,32 @@ class TestWebP:
                 expected = np.asarray(img, dtype=np.uint8)
                 assert_array_equal(actual, expected)
 
+    def test_anim_loop_count(self):
+        imgs = []
+        width = 256
+        height = 64
+        for i in range(4):
+            img = Image.new('RGBA', (width, height))
+            draw = ImageDraw.Draw(img)
+            draw.rectangle((0, 0, width-1, height-1), fill=(0, 0, 255))
+            x = i * (width/4)
+            draw.rectangle((x, 0, x + (width/4-1), height-1), fill=(255, 0, 0))
+            imgs.append(img)
+
+        with TemporaryDirectory() as tmpdir:
+            file_name = os.path.join(tmpdir, 'anim.webp')
+
+            webp.save_images(imgs, file_name, fps=4, loop_count=2, lossless=True)
+
+            with open(file_name, 'rb') as f:
+                webp_data = webp.WebPData.from_buffer(f.read())
+                dec_opts = webp.WebPAnimDecoderOptions.new(
+                    use_threads=True, color_mode=webp.WebPColorMode.RGBA)
+                dec = webp.WebPAnimDecoder.new(webp_data, dec_opts)
+                assert dec.anim_info.loop_count == 2
+                assert dec.anim_info.width == width
+                assert dec.anim_info.height == height
+
     # WebP combines adjacent duplicate frames and adjusts timestamps
     # accordingly, resulting in unevenly spaced frames. By specifying the fps
     # while loading we can return evenly spaced frames.

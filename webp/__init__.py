@@ -361,6 +361,14 @@ class WebPAnimEncoderOptions:
         self.ptr = ptr
 
     @property
+    def loop_count(self) -> int:
+        return self.ptr.anim_params.loop_count
+
+    @loop_count.setter
+    def loop_count(self, loop_count: int) -> None:
+        self.ptr.anim_params.loop_count = loop_count
+
+    @property
     def minimize_size(self) -> bool:
         return self.ptr.minimize_size != 0
 
@@ -475,6 +483,10 @@ class WebPAnimInfo:
     def height(self) -> int:
         return self.ptr.canvas_height
 
+    @property
+    def loop_count(self) -> int:
+        return self.ptr.loop_count
+
     @staticmethod
     def new() -> "WebPAnimInfo":
         ptr = ffi.new('WebPAnimInfo*')
@@ -582,9 +594,12 @@ def _mimwrite_pics(
         pics: List[WebPPicture],
         *args: Any,
         fps: float = 30.0,
+        loop_count: Optional[int] = None,
         **kwargs: Any
         ) -> None:
     enc_opts = WebPAnimEncoderOptions.new()
+    if loop_count is not None:
+        enc_opts.loop_count = loop_count
     enc = WebPAnimEncoder.new(pics[0].ptr.width, pics[0].ptr.height, enc_opts)
     config = WebPConfig.new(**kwargs)
     for i, pic in enumerate(pics):
@@ -602,6 +617,7 @@ def mimwrite(
         arrs: "List[np.ndarray[Any, np.dtype[np.uint8]]]",
         *args: Any,
         fps: float = 30.0,
+        loop_count: Optional[int] = None,
         pilmode: Optional[str] = None,
         **kwargs: Any) -> None:
     """Encode a sequence of PIL Images with WebP and save to file.
@@ -610,10 +626,14 @@ def mimwrite(
         file_path (str): File to save to.
         imgs (list of np.ndarray): Image data to save.
         fps (float): Animation speed in frames per second.
+        loop_count (int, optional): Number of times to repeat the animation.
+            0 = infinite.
+        pilmode (str, optional): Image color mode (RGBA or RGB). Will be
+            inferred from the images if not specified.
         kwargs: Keyword arguments for encoder settings (see `WebPConfig.new`).
     """
     pics = [WebPPicture.from_numpy(arr, pilmode=pilmode) for arr in arrs]
-    _mimwrite_pics(file_path, pics, fps=fps, **kwargs)
+    _mimwrite_pics(file_path, pics, fps=fps, loop_count=loop_count, **kwargs)
 
 
 def mimread(

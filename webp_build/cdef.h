@@ -142,7 +142,14 @@ struct WebPMemoryWriter {
 };
 typedef struct WebPMemoryWriter WebPMemoryWriter;
 
+struct WebPMuxAnimParams {
+  uint32_t bgcolor;
+  int loop_count;
+};
+typedef struct WebPMuxAnimParams WebPMuxAnimParams;
+
 struct WebPAnimEncoderOptions {
+  WebPMuxAnimParams anim_params;
   int minimize_size;
   int kmin;
   int kmax;
