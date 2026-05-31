@@ -28,7 +28,9 @@ dev = [
     "build>=1.0.0",
     "cmake>=3.5",
     "conan>=2.0",
+    "setuptools>=45",
     "twine",
+    "ty>=0.0.40",
 ]
 
 [build-system]

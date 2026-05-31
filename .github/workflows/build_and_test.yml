@@ -26,6 +26,19 @@ jobs:
           path: ./dist/webp-*.tar.gz
           retention-days: 7
 
+  type-check:
+    name: Type check
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: Run ty
+        run: |
+          python -m pip install ty==0.0.40
+          ty check
+
   test-sdist:
     name: Test source distribution
     needs: build-sdist
@@ -50,7 +63,9 @@ jobs:
 
   build-wheels:
     name: Build ${{ matrix.cibw_build }} wheels
-    needs: build-sdist
+    needs:
+      - build-sdist
+      - type-check
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

@@ -7,29 +7,29 @@ from typing import Any, Generator, List, Optional, Tuple
 from webp._webp import ffi, lib
 
 class WebPPreset(Enum):
-    DEFAULT: int = lib.WEBP_PRESET_DEFAULT  # Default
-    PICTURE: int = lib.WEBP_PRESET_PICTURE  # Indoor photo, portrait-like
-    PHOTO: int = lib.WEBP_PRESET_PHOTO  # Outdoor photo with natural lighting
-    DRAWING: int = lib.WEBP_PRESET_DRAWING  # Drawing with high-contrast details
-    ICON: int = lib.WEBP_PRESET_ICON  # Small-sized colourful image
-    TEXT: int = lib.WEBP_PRESET_TEXT  # Text-like
+    DEFAULT = lib.WEBP_PRESET_DEFAULT  # Default
+    PICTURE = lib.WEBP_PRESET_PICTURE  # Indoor photo, portrait-like
+    PHOTO = lib.WEBP_PRESET_PHOTO  # Outdoor photo with natural lighting
+    DRAWING = lib.WEBP_PRESET_DRAWING  # Drawing with high-contrast details
+    ICON = lib.WEBP_PRESET_ICON  # Small-sized colourful image
+    TEXT = lib.WEBP_PRESET_TEXT  # Text-like
 
 
 class WebPColorMode(Enum):
-    RGB: int = lib.MODE_RGB
-    RGBA: int = lib.MODE_RGBA
-    BGR: int = lib.MODE_BGR
-    BGRA: int = lib.MODE_BGRA
-    ARGB: int = lib.MODE_ARGB
-    RGBA_4444: int = lib.MODE_RGBA_4444
-    RGB_565: int = lib.MODE_RGB_565
-    rgbA: int = lib.MODE_rgbA
-    bgrA: int = lib.MODE_bgrA
-    Argb: int = lib.MODE_Argb
-    rgbA_4444: int = lib.MODE_rgbA_4444
-    YUV: int = lib.MODE_YUV
-    YUVA: int = lib.MODE_YUVA
-    LAST: int = lib.MODE_LAST
+    RGB = lib.MODE_RGB
+    RGBA = lib.MODE_RGBA
+    BGR = lib.MODE_BGR
+    BGRA = lib.MODE_BGRA
+    ARGB = lib.MODE_ARGB
+    RGBA_4444 = lib.MODE_RGBA_4444
+    RGB_565 = lib.MODE_RGB_565
+    rgbA = lib.MODE_rgbA
+    bgrA = lib.MODE_bgrA
+    Argb = lib.MODE_Argb
+    rgbA_4444 = lib.MODE_rgbA_4444
+    YUV = lib.MODE_YUV
+    YUVA = lib.MODE_YUVA
+    LAST = lib.MODE_LAST
 
 
 class WebPError(Exception):
@@ -219,6 +219,9 @@ class _WebPData:
 
     # Call this after the struct has been filled in
     def done(self, free_func: Any = lib.WebPFree) -> WebPData:
+        if self.ptr is None:
+            msg = "_WebPData.done() called after ownership was already transferred"
+            raise RuntimeError(msg)
         webp_data = WebPData(self.ptr, ffi.gc(self.ptr.bytes, free_func))
         self.ptr = None
         return webp_data
@@ -234,7 +237,11 @@ class WebPMemoryWriter:
             lib.WebPMemoryWriterClear(self.ptr)
 
     def to_webp_data(self) -> WebPData:
+        if self.ptr is None:
+            msg = "WebPMemoryWriter.to_webp_data() can only be called once"
+            raise RuntimeError(msg)
         _webp_data = _WebPData()
+        assert _webp_data.ptr is not None
         _webp_data.ptr.bytes = self.ptr.mem
         _webp_data.ptr.size = self.ptr.size
         self.ptr = None
