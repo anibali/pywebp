@@ -1,8 +1,0 @@
-name: webp
-channels:
-  - conda-forge
-  - nodefaults
-dependencies:
-  - pdm
-  - pip
-  - python=3.8

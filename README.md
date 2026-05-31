@@ -100,23 +100,16 @@ with open('anim.webp', 'rb') as f:
 
 ### Setting up
 
-1. Install `mamba` and `conda-lock`. The easiest way to do this is by installing
-   [Mambaforge](https://github.com/conda-forge/miniforge#mambaforge) and then
-   running `mamba install conda-lock`. 
-2. Create and activate the Conda environment:
+1. Install [uv](https://docs.astral.sh/uv/).
+2. Create a development environment with all dependency groups:
    ```console
-   $ conda-lock install -n webp
-   $ mamba activate webp
-   ```
-3. Install PyPI dependencies:
-   ```console
-   $ pdm install -G:all
+   $ uv sync --all-groups
    ```
 
 ### Running tests
 
 ```console
-$ pytest tests/
+$ uv run pytest
 ```
 
 ### Cutting a new release
@@ -131,7 +124,7 @@ $ pytest tests/
 4. Create a new release on GitHub from the tagged commit and upload the packages as attachments to the release.
 5. Also upload the packages to PyPI using Twine:
    ```console
-   $ twine upload webp-*.tar.gz webp-*.whl
+   $ uv run twine upload webp-*.tar.gz webp-*.whl
    ```
 6. Bump the version number in `pyproject.toml` and create a commit, signalling the start of development on the next version.
 
