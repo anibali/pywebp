@@ -72,7 +72,7 @@ def install_libwebp(arch: str) -> Dict[Any, Any]:
     ):
         build.append("cmake*")
 
-    subprocess.run(["conan", "profile", "detect", "-f"])
+    subprocess.run(["conan", "profile", "detect", "-f"], check=True)
 
     conan_output = os.path.join("conan_output", arch)
 
@@ -88,6 +88,7 @@ def install_libwebp(arch: str) -> Dict[Any, Any]:
             "--format=json",
             ".",
         ],
+        check=True,
         stdout=subprocess.PIPE,
     ).stdout.decode()
     return json.loads(result)
