@@ -54,18 +54,16 @@ target-version = "py38"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "COM812", # missing-trailing-comma conflicts with ruff format.
-    "ISC001", # single-line-implicit-string-concatenation conflicts with ruff format.
-    "FA", # do not require from __future__ import annotations.
-
-    # Existing codebase cleanup deferred after running safe autofixes.
+    "COM812", # missing-trailing-comma, conflicts with ruff format
+    "FA", # future-rewritable-type-annotation
+    "ISC001", # single-line-implicit-string-concatenation, conflicts with ruff format
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
-    "D", # undocumented-*
-    "PLR2004", # magic-value-comparison
-    "S101", # assert
+    "D", # undocumented-*, tests do not require docstrings
+    "PLR2004", # magic-value-comparison, tests may use literal expected values
+    "S101", # assert, tests should use bare assert statements
 ]
 
 [tool.ruff.lint.pydocstyle]
