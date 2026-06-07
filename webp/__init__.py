@@ -7,6 +7,12 @@ from PIL import Image
 
 from webp._webp import ffi, lib
 
+GRAYSCALE_DIMENSIONS = 2
+COLOR_DIMENSIONS = 3
+PACKED_COLOR_BYTES = 2
+RGB_CHANNELS = 3
+RGBA_CHANNELS = 4
+
 
 class WebPPreset(Enum):
     DEFAULT = lib.WEBP_PRESET_DEFAULT  # Default
@@ -88,7 +94,7 @@ class WebPConfig:
         return lib.WebPValidateConfig(self.ptr) != 0
 
     @staticmethod
-    def new(
+    def new(  # noqa: PLR0913
         preset: WebPPreset = WebPPreset.DEFAULT,
         quality: Optional[float] = None,
         *,
@@ -176,23 +182,23 @@ class WebPData:
         dec_config = WebPDecoderConfig.new()
         dec_config.read_features(self)
 
-        if (
-            color_mode == WebPColorMode.RGBA
-            or color_mode == WebPColorMode.bgrA
-            or color_mode == WebPColorMode.BGRA
-            or color_mode == WebPColorMode.rgbA
-            or color_mode == WebPColorMode.ARGB
-            or color_mode == WebPColorMode.Argb
-        ):
-            bytes_per_pixel = 4
-        elif color_mode == WebPColorMode.RGB or color_mode == WebPColorMode.BGR:
-            bytes_per_pixel = 3
-        elif (
-            color_mode == WebPColorMode.RGB_565
-            or color_mode == WebPColorMode.RGBA_4444
-            or color_mode == WebPColorMode.rgbA_4444
-        ):
-            bytes_per_pixel = 2
+        if color_mode in {
+            WebPColorMode.RGBA,
+            WebPColorMode.bgrA,
+            WebPColorMode.BGRA,
+            WebPColorMode.rgbA,
+            WebPColorMode.ARGB,
+            WebPColorMode.Argb,
+        }:
+            bytes_per_pixel = RGBA_CHANNELS
+        elif color_mode in {WebPColorMode.RGB, WebPColorMode.BGR}:
+            bytes_per_pixel = RGB_CHANNELS
+        elif color_mode in {
+            WebPColorMode.RGB_565,
+            WebPColorMode.RGBA_4444,
+            WebPColorMode.rgbA_4444,
+        }:
+            bytes_per_pixel = PACKED_COLOR_BYTES
         else:
             msg = f"unsupported color mode: {color_mode!s}"
             raise WebPError(msg)
@@ -312,17 +318,17 @@ class WebPPicture:
             msg = "version mismatch"
             raise WebPError(msg)
 
-        if len(arr.shape) == 3:
+        if len(arr.shape) == COLOR_DIMENSIONS:
             bytes_per_pixel = arr.shape[-1]
-        elif len(arr.shape) == 2:
+        elif len(arr.shape) == GRAYSCALE_DIMENSIONS:
             bytes_per_pixel = 1
         else:
             raise WebPError("unexpected array shape: " + repr(arr.shape))
 
         if pilmode is None:
-            if bytes_per_pixel == 3:
+            if bytes_per_pixel == RGB_CHANNELS:
                 import_func = lib.WebPPictureImportRGB
-            elif bytes_per_pixel == 4:
+            elif bytes_per_pixel == RGBA_CHANNELS:
                 import_func = lib.WebPPictureImportRGBA
             else:
                 raise WebPError("cannot infer color mode from array of shape " + repr(arr.shape))
