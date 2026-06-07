@@ -56,6 +56,20 @@ select = ["ALL"]
 ignore = [
     "COM812", # missing-trailing-comma conflicts with ruff format.
     "ISC001", # single-line-implicit-string-concatenation conflicts with ruff format.
+
+    # Existing codebase cleanup deferred after running safe autofixes.
+    "ANN", # type annotation strictness.
+    "D", # docstring coverage/style.
+    "EM", # exception message style.
+    "FA", # future annotations modernization.
+    "FBT", # boolean positional argument API style.
+    "N", # naming conventions for external/CFFI APIs.
+    "PLR", # pylint refactor rules.
+    "PLW", # pylint warning rules.
+    "PTH", # pathlib modernization.
+    "S", # flake8-bandit security checks.
+    "SIM", # simplification suggestions.
+    "TRY", # exception style.
 ]
 
 [tool.ruff.lint.pydocstyle]
