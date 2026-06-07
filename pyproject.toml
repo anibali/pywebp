@@ -61,7 +61,6 @@ ignore = [
     # Existing codebase cleanup deferred after running safe autofixes.
     "ANN", # type annotation strictness.
     "D", # docstring coverage/style.
-    "FBT", # boolean positional argument API style.
     "PLR", # pylint refactor rules.
 ]
 
