@@ -332,10 +332,8 @@ class WebPPicture:
     @staticmethod
     def from_pil(img: Image.Image) -> "WebPPicture":
         if img.mode == "P":
-            if "transparency" in img.info:
-                img = img.convert("RGBA")
-            else:
-                img = img.convert("RGB")
+            mode = "RGBA" if "transparency" in img.info else "RGB"
+            img = img.convert(mode)
         return WebPPicture.from_numpy(np.asarray(img), pilmode=img.mode)
 
 
