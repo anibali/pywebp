@@ -150,7 +150,7 @@ jobs:
         with:
           platforms: all
       - name: Build wheels for ${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}
-        uses: pypa/cibuildwheel@v3
+        uses: pypa/cibuildwheel@v3.4.1
         with:
           package-dir: webp.tar.gz
           output-dir: dist
