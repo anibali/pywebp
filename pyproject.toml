@@ -46,3 +46,17 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages = ["webp"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py38"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "COM812", # missing-trailing-comma conflicts with ruff format.
+    "ISC001", # single-line-implicit-string-concatenation conflicts with ruff format.
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"

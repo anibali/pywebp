@@ -3,8 +3,8 @@ import os
 import platform
 import shutil
 import subprocess
-from typing import Any, Dict, List
 from importlib.resources import read_text
+from typing import Any, Dict, List
 
 from cffi import FFI
 
@@ -62,9 +62,7 @@ def install_libwebp(arch: str) -> Dict[Any, Any]:
     settings.append(f"arch={arch}")
 
     build = ["missing"]
-    if os.path.isdir("/lib") and any(
-        e.startswith("libc.musl") for e in os.listdir("/lib")
-    ):
+    if os.path.isdir("/lib") and any(e.startswith("libc.musl") for e in os.listdir("/lib")):
         # Need to compile libwebp if musllinux
         build.append("libwebp*")
 
@@ -92,14 +90,10 @@ def install_libwebp(arch: str) -> Dict[Any, Any]:
         ],
         stdout=subprocess.PIPE,
     ).stdout.decode()
-    conan_info = json.loads(result)
-
-    return conan_info
+    return json.loads(result)
 
 
-def fetch_cffi_settings(
-    conan_info: Dict[Any, Any], cffi_settings: Dict[str, List[str]]
-):
+def fetch_cffi_settings(conan_info: Dict[Any, Any], cffi_settings: Dict[str, List[str]]):
     """Find header files and libraries in libwebp."""
     for dep in conan_info["graph"]["nodes"].values():
         if dep.get("package_folder") is None:
@@ -112,9 +106,9 @@ def fetch_cffi_settings(
 
             for lib_name in cpp_info.get("libs") or []:
                 if platform.system() == "Windows":
-                    lib_filename = "{}.lib".format(lib_name)
+                    lib_filename = f"{lib_name}.lib"
                 else:
-                    lib_filename = "lib{}.a".format(lib_name)
+                    lib_filename = f"lib{lib_name}.a"
 
                 for lib_dir in cpp_info.get("libdirs") or []:
                     lib_path = os.path.join(lib_dir, lib_filename)

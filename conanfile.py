@@ -1,5 +1,6 @@
-from conan import ConanFile
 import shutil
+
+from conan import ConanFile
 
 
 class LibwebpRecipe(ConanFile):
