@@ -56,12 +56,12 @@ select = ["ALL"]
 ignore = [
     "COM812", # missing-trailing-comma conflicts with ruff format.
     "ISC001", # single-line-implicit-string-concatenation conflicts with ruff format.
+    "FA", # do not require from __future__ import annotations.
 
     # Existing codebase cleanup deferred after running safe autofixes.
     "ANN", # type annotation strictness.
     "D", # docstring coverage/style.
     "EM", # exception message style.
-    "FA", # future annotations modernization.
     "FBT", # boolean positional argument API style.
     "N", # naming conventions for external/CFFI APIs.
     "PLR", # pylint refactor rules.
@@ -73,3 +73,6 @@ ignore = [
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"__future__.annotations" = { msg = "Do not use `from __future__ import annotations`; keep annotations explicit." }
