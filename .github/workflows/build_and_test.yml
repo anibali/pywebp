@@ -64,7 +64,7 @@ jobs:
   build-wheels:
     name: Build ${{ matrix.cibw_build }} wheels
     needs:
-      - build-sdist
+      - test-sdist
       - type-check
     runs-on: ${{ matrix.os }}
     strategy:
