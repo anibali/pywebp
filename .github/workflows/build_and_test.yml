@@ -9,10 +9,10 @@ defaults:
 jobs:
   build-sdist:
     name: Build source distribution
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: 3.8
       - name: Build source distribution
@@ -20,7 +20,7 @@ jobs:
           python -m pip install build
           python -m build --sdist
       - name: Upload source distribution
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: sdist-${{ github.sha }}
           path: ./dist/webp-*.tar.gz
@@ -28,10 +28,10 @@ jobs:
 
   type-check:
     name: Type check
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: 3.8
       - name: Run ty
@@ -42,15 +42,15 @@ jobs:
   test-sdist:
     name: Test source distribution
     needs: build-sdist
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - name: Fetch source distribution
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v8
         with:
           name: sdist-${{ github.sha }}
           path: dist/
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v6
         with:
           python-version: 3.8
       - name: Install the package
@@ -70,55 +70,55 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-24.04
             cibw_archs: x86_64
             cibw_build: "cp38-manylinux_x86_64"
             compile_target: x86_64
-          - os: ubuntu-20.04
+          - os: ubuntu-24.04
             cibw_archs: x86_64
             cibw_build: "cp38-musllinux_x86_64"
             compile_target: x86_64
-          - os: ubuntu-20.04
+          - os: ubuntu-24.04
             cibw_archs: aarch64
             cibw_build: "cp38-manylinux_aarch64"
             compile_target: armv8
-#          - os: ubuntu-20.04
+#          - os: ubuntu-24.04
 #            cibw_archs: aarch64
 #            cibw_build: "cp38-musllinux_aarch64"
 #            compile_target: armv8
-#          - os: ubuntu-20.04
+#          - os: ubuntu-24.04
 #            cibw_archs: i686
 #            cibw_build: "cp38-manylinux_i686"
 #            compile_target: x86
-#          - os: ubuntu-20.04
+#          - os: ubuntu-24.04
 #            cibw_archs: i686
 #            cibw_build: "cp38-musllinux_i686"
 #            compile_target: x86
-#          - os: ubuntu-20.04
+#          - os: ubuntu-24.04
 #            cibw_archs: ppc64le
 #            cibw_build: "cp38-manylinux_ppc64le"
 #            compile_target: ppc64le
-#          - os: ubuntu-20.04
+#          - os: ubuntu-24.04
 #            cibw_archs: ppc64le
 #            cibw_build: "cp38-musllinux_ppc64le"
 #            compile_target: ppc64le
-#          - os: ubuntu-20.04
+#          - os: ubuntu-24.04
 #            cibw_archs: s390x
 #            cibw_build: "cp38-manylinux_s390x"
 #            compile_target: s390x
-#          - os: ubuntu-20.04
+#          - os: ubuntu-24.04
 #            cibw_archs: s390x
 #            cibw_build: "cp38-musllinux_s390x"
 #            compile_target: s390x
-          - os: windows-2019
+          - os: windows-2025
             cibw_archs: AMD64
             cibw_build: "cp38-win_amd64"
             compile_target: x86_64
-#          - os: windows-2019
+#          - os: windows-2025
 #            cibw_archs: x86
 #            cibw_build: "cp38-win32"
 #            compile_target: x86
-          - os: windows-2019
+          - os: windows-2025
             cibw_archs: ARM64
             cibw_build: "cp39-win_arm64"
             compile_target: armv8
@@ -135,22 +135,22 @@ jobs:
             cibw_build: "cp38-macosx_universal2"
             compile_target: universal2
     steps:
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: 3.11
       - name: Fetch source distribution
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v8
         with:
           name: sdist-${{ github.sha }}
           path: dist/
       - run: mv dist/webp-*.tar.gz webp.tar.gz
       - name: Set up QEMU
-        if: runner.os == 'Linux' && runner.cibw_archs != 'x86_64'
-        uses: docker/setup-qemu-action@v2
+        if: runner.os == 'Linux' && matrix.cibw_archs != 'x86_64'
+        uses: docker/setup-qemu-action@v4
         with:
           platforms: all
       - name: Build wheels for ${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}
-        uses: pypa/cibuildwheel@v2.17.0
+        uses: pypa/cibuildwheel@v3
         with:
           package-dir: webp.tar.gz
           output-dir: dist
@@ -166,7 +166,7 @@ jobs:
         run: |
           pip install abi3audit &&
           abi3audit $(ls ./dist/*.whl) --debug --verbose
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v7
         with:
           name: wheels-${{ github.sha }}
           path: ./dist/*.whl
