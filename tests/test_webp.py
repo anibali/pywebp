@@ -78,8 +78,8 @@ class TestWebP:
 
     def test_default_enc_opts(self) -> None:
         enc = webp.WebPAnimEncoder.new(64, 64)
-        assert not enc.enc_opts.minimize_size
-        assert not enc.enc_opts.allow_mixed
+        assert enc.enc_opts.minimize_size is False
+        assert enc.enc_opts.allow_mixed is False
 
     def test_anim_simple(self) -> None:
         imgs = []
