@@ -68,7 +68,6 @@ ignore = [
     "PLW", # pylint warning rules.
     "PTH", # pathlib modernization.
     "S", # flake8-bandit security checks.
-    "SIM", # simplification suggestions.
     "TRY", # exception style.
 ]
 

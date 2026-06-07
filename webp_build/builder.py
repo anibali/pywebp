@@ -105,10 +105,7 @@ def fetch_cffi_settings(conan_info: Dict[Any, Any], cffi_settings: Dict[str, Lis
                     cffi_settings["include_dirs"].append(include_dir)
 
             for lib_name in cpp_info.get("libs") or []:
-                if platform.system() == "Windows":
-                    lib_filename = f"{lib_name}.lib"
-                else:
-                    lib_filename = f"lib{lib_name}.a"
+                lib_filename = f"{lib_name}.lib" if platform.system() == "Windows" else f"lib{lib_name}.a"
 
                 for lib_dir in cpp_info.get("libdirs") or []:
                     lib_path = os.path.join(lib_dir, lib_filename)
