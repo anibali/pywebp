@@ -59,7 +59,6 @@ ignore = [
     "FA", # do not require from __future__ import annotations.
 
     # Existing codebase cleanup deferred after running safe autofixes.
-    "ANN", # type annotation strictness.
     "D", # docstring coverage/style.
 ]
 

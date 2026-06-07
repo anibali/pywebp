@@ -47,7 +47,7 @@ class WebPError(Exception):
 class WebPConfig:
     DEFAULT_QUALITY: float = 75.0
 
-    def __init__(self, ptr: Any) -> None:
+    def __init__(self, ptr: object) -> None:
         self.ptr = ptr
 
     @property
@@ -167,7 +167,7 @@ class WebPConfig:
 
 
 class WebPData:
-    def __init__(self, ptr: Any, data_ref: Any) -> None:
+    def __init__(self, ptr: object, data_ref: object) -> None:
         self.ptr = ptr
         self._data_ref = data_ref
 
@@ -238,7 +238,7 @@ class _WebPData:
         lib.WebPDataInit(self.ptr)
 
     # Call this after the struct has been filled in
-    def done(self, free_func: Any = lib.WebPFree) -> WebPData:
+    def done(self, free_func: object = lib.WebPFree) -> WebPData:
         if self.ptr is None:
             msg = "_WebPData.done() called after ownership was already transferred"
             raise RuntimeError(msg)
@@ -248,7 +248,7 @@ class _WebPData:
 
 
 class WebPMemoryWriter:
-    def __init__(self, ptr: Any) -> None:
+    def __init__(self, ptr: object) -> None:
         self.ptr = ptr
 
     def __del__(self) -> None:
@@ -277,7 +277,7 @@ class WebPMemoryWriter:
 
 
 class WebPPicture:
-    def __init__(self, ptr: Any) -> None:
+    def __init__(self, ptr: object) -> None:
         self.ptr = ptr
 
     def __del__(self) -> None:
@@ -357,19 +357,19 @@ class WebPPicture:
 
 
 class WebPDecoderConfig:
-    def __init__(self, ptr: Any) -> None:
+    def __init__(self, ptr: object) -> None:
         self.ptr = ptr
 
     @property
-    def input(self) -> Any:
+    def input(self) -> object:
         return self.ptr.input
 
     @property
-    def output(self) -> Any:
+    def output(self) -> object:
         return self.ptr.output
 
     @property
-    def options(self) -> Any:
+    def options(self) -> object:
         return self.ptr.options
 
     def read_features(self, webp_data: WebPData) -> None:
@@ -388,7 +388,7 @@ class WebPDecoderConfig:
 
 
 class WebPAnimEncoderOptions:
-    def __init__(self, ptr: Any) -> None:
+    def __init__(self, ptr: object) -> None:
         self.ptr = ptr
 
     @property
@@ -428,14 +428,14 @@ class WebPAnimEncoderOptions:
 
 
 class WebPAnimEncoder:
-    def __init__(self, ptr: Any, enc_opts: WebPAnimEncoderOptions) -> None:
+    def __init__(self, ptr: object, enc_opts: WebPAnimEncoderOptions) -> None:
         self.ptr = ptr
         self.enc_opts = enc_opts
 
     def __del__(self) -> None:
         lib.WebPAnimEncoderDelete(self.ptr)
 
-    def encode_frame(self, frame: WebPPicture, timestamp_ms: int, config: Optional[WebPConfig] = None):
+    def encode_frame(self, frame: WebPPicture, timestamp_ms: int, config: Optional[WebPConfig] = None) -> None:
         """Add a frame to the animation.
 
         Args:
@@ -466,7 +466,7 @@ class WebPAnimEncoder:
 
 
 class WebPAnimDecoderOptions:
-    def __init__(self, ptr: Any) -> None:
+    def __init__(self, ptr: object) -> None:
         self.ptr = ptr
 
     @property
@@ -498,7 +498,7 @@ class WebPAnimDecoderOptions:
 
 
 class WebPAnimInfo:
-    def __init__(self, ptr: Any) -> None:
+    def __init__(self, ptr: object) -> None:
         self.ptr = ptr
 
     @property
@@ -524,7 +524,7 @@ class WebPAnimInfo:
 
 
 class WebPAnimDecoder:
-    def __init__(self, ptr: Any, dec_opts: WebPAnimDecoderOptions, anim_info: WebPAnimInfo) -> None:
+    def __init__(self, ptr: object, dec_opts: WebPAnimDecoderOptions, anim_info: WebPAnimInfo) -> None:
         self.ptr = ptr
         self.dec_opts = dec_opts
         self.anim_info = anim_info
@@ -584,7 +584,7 @@ def imwrite(
     file_path: str,
     arr: "np.ndarray[Any, np.dtype[np.uint8]]",
     pilmode: Optional[str] = None,
-    **kwargs: Any,
+    **kwargs: object,
 ) -> None:
     """Encode numpy array image with WebP and save to file.
 
@@ -628,7 +628,7 @@ def _mimwrite_pics(
     pics: List[WebPPicture],
     fps: float = 30.0,
     loop_count: Optional[int] = None,
-    **kwargs: Any,
+    **kwargs: object,
 ) -> None:
     enc_opts = WebPAnimEncoderOptions.new()
     if loop_count is not None:
@@ -651,7 +651,7 @@ def mimwrite(
     fps: float = 30.0,
     loop_count: Optional[int] = None,
     pilmode: Optional[str] = None,
-    **kwargs: Any,
+    **kwargs: object,
 ) -> None:
     """Encode a sequence of PIL Images with WebP and save to file.
 
@@ -719,7 +719,7 @@ def mimread(
     return arrs
 
 
-def save_image(img: Image.Image, file_path: str, **kwargs: Any) -> None:
+def save_image(img: Image.Image, file_path: str, **kwargs: object) -> None:
     """Encode PIL Image with WebP and save to file.
 
     Args:
@@ -746,7 +746,7 @@ def load_image(file_path: str, mode: str = "RGBA") -> Image.Image:
     return Image.fromarray(arr, mode)
 
 
-def save_images(imgs: List[Image.Image], file_path: str, **kwargs: Any) -> None:
+def save_images(imgs: List[Image.Image], file_path: str, **kwargs: object) -> None:
     """Encode a sequence of PIL Images with WebP and save to file.
 
     Args:
@@ -758,7 +758,7 @@ def save_images(imgs: List[Image.Image], file_path: str, **kwargs: Any) -> None:
     _mimwrite_pics(file_path, pics, **kwargs)
 
 
-def load_images(file_path: str, mode: str = "RGBA", **kwargs: Any) -> List[Image.Image]:
+def load_images(file_path: str, mode: str = "RGBA", **kwargs: object) -> List[Image.Image]:
     """Load from file and decode a sequence of PIL Images with WebP.
 
     Args:

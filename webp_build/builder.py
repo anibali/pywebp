@@ -102,7 +102,7 @@ def install_libwebp(arch: str) -> Dict[Any, Any]:
     return json.loads(result)
 
 
-def fetch_cffi_settings(conan_info: Dict[Any, Any], cffi_settings: Dict[str, List[str]]):
+def fetch_cffi_settings(conan_info: Dict[Any, Any], cffi_settings: Dict[str, List[str]]) -> Dict[str, List[str]]:
     """Find header files and libraries in libwebp."""
     for dep in conan_info["graph"]["nodes"].values():
         if dep.get("package_folder") is None:
@@ -126,7 +126,7 @@ def fetch_cffi_settings(conan_info: Dict[Any, Any], cffi_settings: Dict[str, Lis
     return cffi_settings
 
 
-def create_ffibuilder():
+def create_ffibuilder() -> FFI:
     cffi_settings: Dict[str, List[str]] = {
         "extra_objects": [],
         "extra_compile_args": [],
