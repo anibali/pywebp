@@ -34,10 +34,10 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: 3.8
+      - uses: astral-sh/setup-uv@v8.2.0
       - name: Run ty
         run: |
-          python -m pip install ty==0.0.40
-          ty check
+          uv run --frozen --group dev --group test ty check
 
   test-sdist:
     name: Test source distribution
