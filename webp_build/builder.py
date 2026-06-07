@@ -40,7 +40,8 @@ def get_arch() -> str:
         if platform.machine().lower() in v:
             return k
 
-    raise RuntimeError("Unable to determine the compilation target architecture")
+    msg = "Unable to determine the compilation target architecture"
+    raise RuntimeError(msg)
 
 
 def install_libwebp(arch: str) -> Dict[Any, Any]:

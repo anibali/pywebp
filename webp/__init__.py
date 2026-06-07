@@ -130,13 +130,16 @@ class WebPConfig:
         """
         ptr = ffi.new("WebPConfig*")
         if lib.WebPConfigPreset(ptr, preset.value, WebPConfig.DEFAULT_QUALITY) == 0:
-            raise WebPError("failed to load config options from preset")
+            msg = "failed to load config options from preset"
+            raise WebPError(msg)
 
         if lossless_preset is not None:
             if not lossless:
-                raise WebPError("can only use lossless preset when lossless is True")
+                msg = "can only use lossless preset when lossless is True"
+                raise WebPError(msg)
             if lib.WebPConfigLosslessPreset(ptr, lossless_preset) == 0:
-                raise WebPError("failed to load config options from lossless preset")
+                msg = "failed to load config options from lossless preset"
+                raise WebPError(msg)
 
         config = WebPConfig(ptr)
         config.lossless = lossless
@@ -152,7 +155,8 @@ class WebPConfig:
             config.passes = passes
 
         if not config.validate():
-            raise WebPError("config is not valid")
+            msg = "config is not valid"
+            raise WebPError(msg)
         return config
 
 
@@ -190,7 +194,8 @@ class WebPData:
         ):
             bytes_per_pixel = 2
         else:
-            raise WebPError(f"unsupported color mode: {color_mode!s}")
+            msg = f"unsupported color mode: {color_mode!s}"
+            raise WebPError(msg)
 
         arr = np.empty(
             (dec_config.input.height, dec_config.input.width, bytes_per_pixel),
@@ -203,7 +208,8 @@ class WebPData:
         dec_config.output.is_external_memory = 1
 
         if lib.WebPDecode(self.ptr.bytes, self.size, dec_config.ptr) != lib.VP8_STATUS_OK:
-            raise WebPError("failed to decode")
+            msg = "failed to decode"
+            raise WebPError(msg)
         lib.WebPFreeDecBuffer(ffi.addressof(dec_config.ptr, "output"))
 
         return arr
@@ -290,18 +296,21 @@ class WebPPicture:
     def new(width: int, height: int) -> "WebPPicture":
         ptr = ffi.new("WebPPicture*")
         if lib.WebPPictureInit(ptr) == 0:
-            raise WebPError("version mismatch")
+            msg = "version mismatch"
+            raise WebPError(msg)
         ptr.width = width
         ptr.height = height
         if lib.WebPPictureAlloc(ptr) == 0:
-            raise WebPError("memory error")
+            msg = "memory error"
+            raise WebPError(msg)
         return WebPPicture(ptr)
 
     @staticmethod
     def from_numpy(arr: "np.ndarray[Any, np.dtype[np.uint8]]", *, pilmode: Optional[str] = None) -> "WebPPicture":
         ptr = ffi.new("WebPPicture*")
         if lib.WebPPictureInit(ptr) == 0:
-            raise WebPError("version mismatch")
+            msg = "version mismatch"
+            raise WebPError(msg)
 
         if len(arr.shape) == 3:
             bytes_per_pixel = arr.shape[-1]
@@ -329,7 +338,8 @@ class WebPPicture:
         stride = ptr.width * bytes_per_pixel
         ptr.use_argb = 1
         if import_func(ptr, pixels, stride) == 0:
-            raise WebPError("memory error")
+            msg = "memory error"
+            raise WebPError(msg)
         return WebPPicture(ptr)
 
     @staticmethod
@@ -359,13 +369,15 @@ class WebPDecoderConfig:
     def read_features(self, webp_data: WebPData) -> None:
         input_ptr = ffi.addressof(self.ptr, "input")
         if lib.WebPGetFeatures(webp_data.ptr.bytes, webp_data.size, input_ptr) != lib.VP8_STATUS_OK:
-            raise WebPError("failed to read features")
+            msg = "failed to read features"
+            raise WebPError(msg)
 
     @staticmethod
     def new() -> "WebPDecoderConfig":
         ptr = ffi.new("WebPDecoderConfig*")
         if lib.WebPInitDecoderConfig(ptr) == 0:
-            raise WebPError("failed to init decoder config")
+            msg = "failed to init decoder config"
+            raise WebPError(msg)
         return WebPDecoderConfig(ptr)
 
 
@@ -401,7 +413,8 @@ class WebPAnimEncoderOptions:
     def new(minimize_size: bool = False, allow_mixed: bool = False) -> "WebPAnimEncoderOptions":
         ptr = ffi.new("WebPAnimEncoderOptions*")
         if lib.WebPAnimEncoderOptionsInit(ptr) == 0:
-            raise WebPError("version mismatch")
+            msg = "version mismatch"
+            raise WebPError(msg)
         enc_opts = WebPAnimEncoderOptions(ptr)
         enc_opts.minimize_size = minimize_size
         enc_opts.allow_mixed = allow_mixed
@@ -434,7 +447,8 @@ class WebPAnimEncoder:
             raise WebPError("encoding error: " + self.ptr.error_code)
         _webp_data = _WebPData()
         if lib.WebPAnimEncoderAssemble(self.ptr, _webp_data.ptr) == 0:
-            raise WebPError("error assembling animation")
+            msg = "error assembling animation"
+            raise WebPError(msg)
         return _webp_data.done()
 
     @staticmethod
@@ -469,7 +483,8 @@ class WebPAnimDecoderOptions:
     def new(use_threads: bool = False, color_mode: WebPColorMode = WebPColorMode.RGBA) -> "WebPAnimDecoderOptions":
         ptr = ffi.new("WebPAnimDecoderOptions*")
         if lib.WebPAnimDecoderOptionsInit(ptr) == 0:
-            raise WebPError("version mismatch")
+            msg = "version mismatch"
+            raise WebPError(msg)
         dec_opts = WebPAnimDecoderOptions(ptr)
         dec_opts.use_threads = use_threads
         dec_opts.color_mode = color_mode
@@ -527,7 +542,8 @@ class WebPAnimDecoder:
         timestamp_ptr = ffi.new("int*")
         buf_ptr = ffi.new("uint8_t**")
         if lib.WebPAnimDecoderGetNext(self.ptr, buf_ptr, timestamp_ptr) == 0:
-            raise WebPError("decoding error")
+            msg = "decoding error"
+            raise WebPError(msg)
         size = self.anim_info.height * self.anim_info.width * 4
         buf = ffi.buffer(buf_ptr[0], size)
         arr = np.copy(np.frombuffer(buf, dtype=np.uint8))
@@ -549,10 +565,12 @@ class WebPAnimDecoder:
             dec_opts = WebPAnimDecoderOptions.new()
         ptr = lib.WebPAnimDecoderNew(webp_data.ptr, dec_opts.ptr)
         if ptr == ffi.NULL:
-            raise WebPError("failed to create decoder")
+            msg = "failed to create decoder"
+            raise WebPError(msg)
         anim_info = WebPAnimInfo.new()
         if lib.WebPAnimDecoderGetInfo(ptr, anim_info.ptr) == 0:
-            raise WebPError("failed to get animation info")
+            msg = "failed to get animation info"
+            raise WebPError(msg)
         return WebPAnimDecoder(ptr, dec_opts, anim_info)
 
 
