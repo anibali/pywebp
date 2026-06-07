@@ -1,4 +1,5 @@
 from enum import Enum
+from pathlib import Path
 from typing import Any, Generator, List, Optional, Tuple
 
 import numpy as np
@@ -280,7 +281,7 @@ class WebPPicture:
 
     def save(self, file_path: str, config: Optional[WebPConfig] = None) -> None:
         buf = self.encode(config).buffer()
-        with open(file_path, "wb") as f:
+        with Path(file_path).open("wb") as f:
             f.write(buf)
 
     @staticmethod
@@ -591,7 +592,7 @@ def imread(file_path: str, pilmode: str = "RGBA") -> "np.ndarray[Any, np.dtype[n
     else:
         raise WebPError("unsupported color mode: " + pilmode)
 
-    with open(file_path, "rb") as f:
+    with Path(file_path).open("rb") as f:
         webp_data = WebPData.from_buffer(f.read())
         return webp_data.decode(color_mode=color_mode)
 
@@ -614,7 +615,7 @@ def _mimwrite_pics(
     end_t = round((len(pics) * 1000) / fps)
     anim_data = enc.assemble(end_t)
 
-    with open(file_path, "wb") as f:
+    with Path(file_path).open("wb") as f:
         f.write(anim_data.buffer())
 
 
@@ -674,7 +675,7 @@ def mimread(
 
     arrs: List[np.ndarray[Any, np.dtype[np.uint8]]] = []
 
-    with open(file_path, "rb") as f:
+    with Path(file_path).open("rb") as f:
         webp_data = WebPData.from_buffer(f.read())
         dec_opts = WebPAnimDecoderOptions.new(use_threads=use_threads, color_mode=color_mode)
         dec = WebPAnimDecoder.new(webp_data, dec_opts)

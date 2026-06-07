@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import numpy as np
@@ -28,11 +28,11 @@ class TestWebP:
         buf = pic.encode(config).buffer()
 
         with TemporaryDirectory() as tmpdir:
-            file_name = os.path.join(tmpdir, "image.webp")
-            with open(file_name, "wb") as f:
+            file_name = Path(tmpdir) / "image.webp"
+            with file_name.open("wb") as f:
                 f.write(buf)
 
-            with open(file_name, "rb") as f:
+            with file_name.open("rb") as f:
                 webp_data = webp.WebPData.from_buffer(f.read())
                 arr = webp_data.decode(color_mode=webp.WebPColorMode.RGB)
 
@@ -62,12 +62,12 @@ class TestWebP:
         anim_data = enc.assemble(t)
 
         with TemporaryDirectory() as tmpdir:
-            file_name = os.path.join(tmpdir, "anim.webp")
+            file_name = Path(tmpdir) / "anim.webp"
 
-            with open(file_name, "wb") as f:
+            with file_name.open("wb") as f:
                 f.write(anim_data.buffer())
 
-            with open(file_name, "rb") as f:
+            with file_name.open("rb") as f:
                 webp_data = webp.WebPData.from_buffer(f.read())
                 dec_opts = webp.WebPAnimDecoderOptions.new()
                 dec = webp.WebPAnimDecoder.new(webp_data, dec_opts)
@@ -94,7 +94,7 @@ class TestWebP:
             imgs.append(img)
 
         with TemporaryDirectory() as tmpdir:
-            file_name = os.path.join(tmpdir, "anim.webp")
+            file_name = Path(tmpdir) / "anim.webp"
 
             webp.save_images(imgs, file_name, fps=4, lossless=True)
             dec_imgs = webp.load_images(file_name, "RGBA")
@@ -118,11 +118,11 @@ class TestWebP:
             imgs.append(img)
 
         with TemporaryDirectory() as tmpdir:
-            file_name = os.path.join(tmpdir, "anim.webp")
+            file_name = Path(tmpdir) / "anim.webp"
 
             webp.save_images(imgs, file_name, fps=4, loop_count=2, lossless=True)
 
-            with open(file_name, "rb") as f:
+            with file_name.open("rb") as f:
                 webp_data = webp.WebPData.from_buffer(f.read())
                 dec_opts = webp.WebPAnimDecoderOptions.new(use_threads=True, color_mode=webp.WebPColorMode.RGBA)
                 dec = webp.WebPAnimDecoder.new(webp_data, dec_opts)
@@ -148,7 +148,7 @@ class TestWebP:
         imgs = [img1, img1, img2, img2]
 
         with TemporaryDirectory() as tmpdir:
-            file_name = os.path.join(tmpdir, "anim.webp")
+            file_name = Path(tmpdir) / "anim.webp"
 
             webp.save_images(imgs, file_name, fps=4, lossless=True)
             dec_imgs = webp.load_images(file_name, "RGBA", fps=4)
@@ -164,7 +164,7 @@ class TestWebP:
         draw.rectangle((0, 0, (width / 4 - 1), height - 1), fill=(255, 0, 0))
 
         with TemporaryDirectory() as tmpdir:
-            file_name = os.path.join(tmpdir, "image.webp")
+            file_name = Path(tmpdir) / "image.webp"
 
             webp.save_image(img, file_name, lossless=True)
             dec_img = webp.load_image(file_name, "RGB")
@@ -178,14 +178,14 @@ class TestWebP:
         img = Image.fromarray(rng.randint(0, 256, size=(128, 128, 3), dtype=np.uint8))
 
         with TemporaryDirectory() as tmpdir:
-            file_name = os.path.join(tmpdir, "image.webp")
+            file_name = Path(tmpdir) / "image.webp"
 
             webp.save_image(img, file_name, target_size=5000, passes=6)
-            assert os.path.getsize(file_name) <= 5000
+            assert file_name.stat().st_size <= 5000
 
     def test_image_palette(self, image_bars_palette):
         with TemporaryDirectory() as tmpdir:
-            file_name = os.path.join(tmpdir, "image.webp")
+            file_name = Path(tmpdir) / "image.webp"
 
             assert image_bars_palette.mode == "P"
             webp.save_image(image_bars_palette, file_name, lossless=True)
@@ -198,7 +198,7 @@ class TestWebP:
 
     def test_image_palette_opaque(self, image_bars_palette_opaque):
         with TemporaryDirectory() as tmpdir:
-            file_name = os.path.join(tmpdir, "image.webp")
+            file_name = Path(tmpdir) / "image.webp"
 
             assert image_bars_palette_opaque.mode == "P"
             webp.save_image(image_bars_palette_opaque, file_name, lossless=True)
@@ -211,7 +211,7 @@ class TestWebP:
 
     def test_anim_image_palette(self, image_bars_palette):
         with TemporaryDirectory() as tmpdir:
-            file_name = os.path.join(tmpdir, "image.webp")
+            file_name = Path(tmpdir) / "image.webp"
 
             assert image_bars_palette.mode == "P"
             webp.save_images([image_bars_palette] * 3, file_name, lossless=True)
@@ -227,7 +227,7 @@ class TestWebP:
         height = 64
         img1 = Image.new("L", (width, height))
         with TemporaryDirectory() as tmpdir:
-            file_name = os.path.join(tmpdir, "image.webp")
+            file_name = Path(tmpdir) / "image.webp"
             with pytest.raises(webp.WebPError) as ex_info:
                 webp.save_image(img1, file_name)
             assert str(ex_info.value) == "unsupported image mode: L"

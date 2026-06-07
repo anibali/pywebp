@@ -65,7 +65,6 @@ ignore = [
     "FBT", # boolean positional argument API style.
     "N", # naming conventions for external/CFFI APIs.
     "PLR", # pylint refactor rules.
-    "PTH", # pathlib modernization.
     "S", # flake8-bandit security checks.
     "TRY", # exception style.
 ]
