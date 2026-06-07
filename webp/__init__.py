@@ -681,13 +681,12 @@ def mimread(
         eps = 1e-7
 
         for arr, frame_end_time in dec.frames():
-            if pilmode == "RGB":
-                arr = arr[:, :, 0:3]
+            frame = arr[:, :, 0:3] if pilmode == "RGB" else arr
             if fps is None:
-                arrs.append(arr)
+                arrs.append(frame)
             else:
                 while len(arrs) * (1000 / fps) + eps < frame_end_time:
-                    arrs.append(arr)
+                    arrs.append(frame)
 
     return arrs
 
