@@ -249,7 +249,9 @@ class WebPMemoryWriter:
             msg = "WebPMemoryWriter.to_webp_data() can only be called once"
             raise RuntimeError(msg)
         _webp_data = _WebPData()
-        assert _webp_data.ptr is not None
+        if _webp_data.ptr is None:
+            msg = "failed to initialize WebPData"
+            raise RuntimeError(msg)
         _webp_data.ptr.bytes = self.ptr.mem
         _webp_data.ptr.size = self.ptr.size
         self.ptr = None

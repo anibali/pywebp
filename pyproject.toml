@@ -64,9 +64,12 @@ ignore = [
     "EM", # exception message style.
     "FBT", # boolean positional argument API style.
     "PLR", # pylint refactor rules.
-    "S", # flake8-bandit security checks.
     "TRY", # exception style.
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"conanfile.py" = ["S101"]
+"tests/**/*.py" = ["S101"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
