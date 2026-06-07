@@ -1,3 +1,5 @@
+"""CFFI builder for the WebP extension."""
+
 import json
 import os
 import platform
@@ -127,6 +129,7 @@ def fetch_cffi_settings(conan_info: Dict[Any, Any], cffi_settings: Dict[str, Lis
 
 
 def create_ffibuilder() -> FFI:
+    """Create the CFFI builder."""
     cffi_settings: Dict[str, List[str]] = {
         "extra_objects": [],
         "extra_compile_args": [],

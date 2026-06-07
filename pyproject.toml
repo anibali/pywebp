@@ -59,7 +59,6 @@ ignore = [
     "FA", # do not require from __future__ import annotations.
 
     # Existing codebase cleanup deferred after running safe autofixes.
-    "D", # docstring coverage/style.
 ]
 
 [tool.ruff.lint.per-file-ignores]

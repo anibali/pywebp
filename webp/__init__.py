@@ -1,3 +1,5 @@
+"""Python bindings for the WebP image format."""
+
 from enum import Enum
 from pathlib import Path
 from typing import Any, Generator, List, Optional, Tuple
@@ -15,6 +17,8 @@ RGBA_CHANNELS = 4
 
 
 class WebPPreset(Enum):
+    """Represent WebP encoder presets."""
+
     DEFAULT = lib.WEBP_PRESET_DEFAULT  # Default
     PICTURE = lib.WEBP_PRESET_PICTURE  # Indoor photo, portrait-like
     PHOTO = lib.WEBP_PRESET_PHOTO  # Outdoor photo with natural lighting
@@ -24,6 +28,8 @@ class WebPPreset(Enum):
 
 
 class WebPColorMode(Enum):
+    """Represent WebP decoder color modes."""
+
     RGB = lib.MODE_RGB
     RGBA = lib.MODE_RGBA
     BGR = lib.MODE_BGR
@@ -41,56 +47,70 @@ class WebPColorMode(Enum):
 
 
 class WebPError(Exception):
-    pass
+    """Represent an error raised by the WebP bindings."""
 
 
 class WebPConfig:
+    """Represent WebP encoder configuration."""
+
     DEFAULT_QUALITY: float = 75.0
 
     def __init__(self, ptr: object) -> None:
+        """Initialize the wrapper."""
         self.ptr = ptr
 
     @property
     def lossless(self) -> bool:
+        """Return whether lossless encoding is enabled."""
         return self.ptr.lossless != 0
 
     @lossless.setter
     def lossless(self, lossless: bool) -> None:
+        """Return whether lossless encoding is enabled."""
         self.ptr.lossless = 1 if lossless else 0
 
     @property
     def quality(self) -> float:
+        """Return the encoder quality."""
         return self.ptr.quality
 
     @quality.setter
     def quality(self, quality: float) -> None:
+        """Return the encoder quality."""
         self.ptr.quality = quality
 
     @property
     def method(self) -> int:
+        """Return the encoder method."""
         return self.ptr.method
 
     @method.setter
     def method(self, method: int) -> None:
+        """Return the encoder method."""
         self.ptr.method = method
 
     @property
     def target_size(self) -> int:
+        """Return the target encoded size."""
         return self.ptr.target_size
 
     @target_size.setter
     def target_size(self, target_size: int) -> None:
+        """Return the target encoded size."""
         self.ptr.target_size = target_size
 
     @property
     def passes(self) -> int:
+        """Return the number of analysis passes."""
         return getattr(self.ptr, "pass")
 
     @passes.setter
     def passes(self, passes: int) -> None:
+        """Return the number of analysis passes."""
         setattr(self.ptr, "pass", passes)
 
     def validate(self) -> bool:
+        """Return whether the configuration is valid."""
         return lib.WebPValidateConfig(self.ptr) != 0
 
     @staticmethod
@@ -167,18 +187,24 @@ class WebPConfig:
 
 
 class WebPData:
+    """Represent encoded WebP data."""
+
     def __init__(self, ptr: object, data_ref: object) -> None:
+        """Initialize the wrapper."""
         self.ptr = ptr
         self._data_ref = data_ref
 
     @property
     def size(self) -> int:
+        """Return the data size in bytes."""
         return self.ptr.size
 
     def buffer(self) -> bytes:
+        """Return the data as bytes."""
         return ffi.buffer(self._data_ref, self.size)
 
     def decode(self, color_mode: WebPColorMode = WebPColorMode.RGBA) -> "np.ndarray[Any, np.dtype[np.uint8]]":
+        """Decode the WebP data into a numpy array."""
         dec_config = WebPDecoderConfig.new()
         dec_config.read_features(self)
 
@@ -222,6 +248,7 @@ class WebPData:
 
     @staticmethod
     def from_buffer(buf: bytes) -> "WebPData":
+        """Create WebP data from a byte buffer."""
         ptr = ffi.new("WebPData*")
         lib.WebPDataInit(ptr)
         data_ref = ffi.from_buffer(buf)
@@ -234,11 +261,13 @@ class WebPData:
 # before bytes and size have been set)
 class _WebPData:
     def __init__(self) -> None:
+        """Initialize the wrapper."""
         self.ptr = ffi.new("WebPData*")
         lib.WebPDataInit(self.ptr)
 
     # Call this after the struct has been filled in
     def done(self, free_func: object = lib.WebPFree) -> WebPData:
+        """Run done."""
         if self.ptr is None:
             msg = "_WebPData.done() called after ownership was already transferred"
             raise RuntimeError(msg)
@@ -248,15 +277,20 @@ class _WebPData:
 
 
 class WebPMemoryWriter:
+    """Wrap a WebP memory writer."""
+
     def __init__(self, ptr: object) -> None:
+        """Initialize the wrapper."""
         self.ptr = ptr
 
     def __del__(self) -> None:
         # Free memory if we are still responsible for it.
+        """Release owned WebP resources."""
         if self.ptr:
             lib.WebPMemoryWriterClear(self.ptr)
 
     def to_webp_data(self) -> WebPData:
+        """Transfer writer memory into WebP data."""
         if self.ptr is None:
             msg = "WebPMemoryWriter.to_webp_data() can only be called once"
             raise RuntimeError(msg)
@@ -271,19 +305,25 @@ class WebPMemoryWriter:
 
     @staticmethod
     def new() -> "WebPMemoryWriter":
+        """Create a new wrapper instance."""
         ptr = ffi.new("WebPMemoryWriter*")
         lib.WebPMemoryWriterInit(ptr)
         return WebPMemoryWriter(ptr)
 
 
 class WebPPicture:
+    """Represent a WebP picture."""
+
     def __init__(self, ptr: object) -> None:
+        """Initialize the wrapper."""
         self.ptr = ptr
 
     def __del__(self) -> None:
+        """Release owned WebP resources."""
         lib.WebPPictureFree(self.ptr)
 
     def encode(self, config: Optional[WebPConfig] = None) -> WebPData:
+        """Encode the picture as WebP data."""
         if config is None:
             config = WebPConfig.new()
         writer = WebPMemoryWriter.new()
@@ -294,12 +334,14 @@ class WebPPicture:
         return writer.to_webp_data()
 
     def save(self, file_path: str, config: Optional[WebPConfig] = None) -> None:
+        """Save the picture to a WebP file."""
         buf = self.encode(config).buffer()
         with Path(file_path).open("wb") as f:
             f.write(buf)
 
     @staticmethod
     def new(width: int, height: int) -> "WebPPicture":
+        """Create a new wrapper instance."""
         ptr = ffi.new("WebPPicture*")
         if lib.WebPPictureInit(ptr) == 0:
             msg = "version mismatch"
@@ -313,6 +355,7 @@ class WebPPicture:
 
     @staticmethod
     def from_numpy(arr: "np.ndarray[Any, np.dtype[np.uint8]]", *, pilmode: Optional[str] = None) -> "WebPPicture":
+        """Create a picture from a numpy array."""
         ptr = ffi.new("WebPPicture*")
         if lib.WebPPictureInit(ptr) == 0:
             msg = "version mismatch"
@@ -350,6 +393,7 @@ class WebPPicture:
 
     @staticmethod
     def from_pil(img: Image.Image) -> "WebPPicture":
+        """Create a picture from a PIL image."""
         if img.mode == "P":
             mode = "RGBA" if "transparency" in img.info else "RGB"
             img = img.convert(mode)
@@ -357,22 +401,29 @@ class WebPPicture:
 
 
 class WebPDecoderConfig:
+    """Wrap a WebP decoder configuration."""
+
     def __init__(self, ptr: object) -> None:
+        """Initialize the wrapper."""
         self.ptr = ptr
 
     @property
     def input(self) -> object:
+        """Return decoder input settings."""
         return self.ptr.input
 
     @property
     def output(self) -> object:
+        """Return decoder output settings."""
         return self.ptr.output
 
     @property
     def options(self) -> object:
+        """Return decoder options."""
         return self.ptr.options
 
     def read_features(self, webp_data: WebPData) -> None:
+        """Read WebP features into this configuration."""
         input_ptr = ffi.addressof(self.ptr, "input")
         if lib.WebPGetFeatures(webp_data.ptr.bytes, webp_data.size, input_ptr) != lib.VP8_STATUS_OK:
             msg = "failed to read features"
@@ -380,6 +431,7 @@ class WebPDecoderConfig:
 
     @staticmethod
     def new() -> "WebPDecoderConfig":
+        """Create a new wrapper instance."""
         ptr = ffi.new("WebPDecoderConfig*")
         if lib.WebPInitDecoderConfig(ptr) == 0:
             msg = "failed to init decoder config"
@@ -388,35 +440,45 @@ class WebPDecoderConfig:
 
 
 class WebPAnimEncoderOptions:
+    """Represent WebP animation encoder options."""
+
     def __init__(self, ptr: object) -> None:
+        """Initialize the wrapper."""
         self.ptr = ptr
 
     @property
     def loop_count(self) -> int:
+        """Return the animation loop count."""
         return self.ptr.anim_params.loop_count
 
     @loop_count.setter
     def loop_count(self, loop_count: int) -> None:
+        """Return the animation loop count."""
         self.ptr.anim_params.loop_count = loop_count
 
     @property
     def minimize_size(self) -> bool:
+        """Return whether size minimization is enabled."""
         return self.ptr.minimize_size != 0
 
     @minimize_size.setter
     def minimize_size(self, minimize_size: bool) -> None:
+        """Return whether size minimization is enabled."""
         self.ptr.minimize_size = 1 if minimize_size else 0
 
     @property
     def allow_mixed(self) -> bool:
+        """Return whether mixed compression is enabled."""
         return self.ptr.allow_mixed != 0
 
     @allow_mixed.setter
     def allow_mixed(self, allow_mixed: bool) -> None:
+        """Return whether mixed compression is enabled."""
         self.ptr.allow_mixed = 1 if allow_mixed else 0
 
     @staticmethod
     def new(*, minimize_size: bool = False, allow_mixed: bool = False) -> "WebPAnimEncoderOptions":
+        """Create a new wrapper instance."""
         ptr = ffi.new("WebPAnimEncoderOptions*")
         if lib.WebPAnimEncoderOptionsInit(ptr) == 0:
             msg = "version mismatch"
@@ -428,11 +490,15 @@ class WebPAnimEncoderOptions:
 
 
 class WebPAnimEncoder:
+    """Encode animated WebP images."""
+
     def __init__(self, ptr: object, enc_opts: WebPAnimEncoderOptions) -> None:
+        """Initialize the wrapper."""
         self.ptr = ptr
         self.enc_opts = enc_opts
 
     def __del__(self) -> None:
+        """Release owned WebP resources."""
         lib.WebPAnimEncoderDelete(self.ptr)
 
     def encode_frame(self, frame: WebPPicture, timestamp_ms: int, config: Optional[WebPConfig] = None) -> None:
@@ -449,6 +515,7 @@ class WebPAnimEncoder:
             raise WebPError("encoding error: " + self.ptr.error_code)
 
     def assemble(self, end_timestamp_ms: int) -> WebPData:
+        """Assemble encoded animation data."""
         if lib.WebPAnimEncoderAdd(self.ptr, ffi.NULL, end_timestamp_ms, ffi.NULL) == 0:
             raise WebPError("encoding error: " + self.ptr.error_code)
         _webp_data = _WebPData()
@@ -459,6 +526,7 @@ class WebPAnimEncoder:
 
     @staticmethod
     def new(width: int, height: int, enc_opts: Optional[WebPAnimEncoderOptions] = None) -> "WebPAnimEncoder":
+        """Create a new wrapper instance."""
         if enc_opts is None:
             enc_opts = WebPAnimEncoderOptions.new()
         ptr = lib.WebPAnimEncoderNew(width, height, enc_opts.ptr)
@@ -466,27 +534,35 @@ class WebPAnimEncoder:
 
 
 class WebPAnimDecoderOptions:
+    """Represent WebP animation decoder options."""
+
     def __init__(self, ptr: object) -> None:
+        """Initialize the wrapper."""
         self.ptr = ptr
 
     @property
     def color_mode(self) -> WebPColorMode:
+        """Return the decoder color mode."""
         return WebPColorMode(self.ptr.color_mode)
 
     @color_mode.setter
     def color_mode(self, color_mode: WebPColorMode) -> None:
+        """Return the decoder color mode."""
         self.ptr.color_mode = color_mode.value
 
     @property
     def use_threads(self) -> bool:
+        """Return whether threaded decoding is enabled."""
         return self.ptr.use_threads != 0
 
     @use_threads.setter
     def use_threads(self, use_threads: bool) -> None:
+        """Return whether threaded decoding is enabled."""
         self.ptr.use_threads = 1 if use_threads else 0
 
     @staticmethod
     def new(*, use_threads: bool = False, color_mode: WebPColorMode = WebPColorMode.RGBA) -> "WebPAnimDecoderOptions":
+        """Create a new wrapper instance."""
         ptr = ffi.new("WebPAnimDecoderOptions*")
         if lib.WebPAnimDecoderOptionsInit(ptr) == 0:
             msg = "version mismatch"
@@ -498,44 +574,58 @@ class WebPAnimDecoderOptions:
 
 
 class WebPAnimInfo:
+    """Represent WebP animation metadata."""
+
     def __init__(self, ptr: object) -> None:
+        """Initialize the wrapper."""
         self.ptr = ptr
 
     @property
     def frame_count(self) -> int:
+        """Return the number of animation frames."""
         return self.ptr.frame_count
 
     @property
     def width(self) -> int:
+        """Return the canvas width."""
         return self.ptr.canvas_width
 
     @property
     def height(self) -> int:
+        """Return the canvas height."""
         return self.ptr.canvas_height
 
     @property
     def loop_count(self) -> int:
+        """Return the animation loop count."""
         return self.ptr.loop_count
 
     @staticmethod
     def new() -> "WebPAnimInfo":
+        """Create a new wrapper instance."""
         ptr = ffi.new("WebPAnimInfo*")
         return WebPAnimInfo(ptr)
 
 
 class WebPAnimDecoder:
+    """Decode animated WebP images."""
+
     def __init__(self, ptr: object, dec_opts: WebPAnimDecoderOptions, anim_info: WebPAnimInfo) -> None:
+        """Initialize the wrapper."""
         self.ptr = ptr
         self.dec_opts = dec_opts
         self.anim_info = anim_info
 
     def __del__(self) -> None:
+        """Release owned WebP resources."""
         lib.WebPAnimDecoderDelete(self.ptr)
 
     def has_more_frames(self) -> bool:
+        """Return whether more frames are available."""
         return lib.WebPAnimDecoderHasMoreFrames(self.ptr) != 0
 
     def reset(self) -> None:
+        """Reset the decoder to the first frame."""
         lib.WebPAnimDecoderReset(self.ptr)
 
     def decode_frame(self) -> Tuple["np.ndarray[Any, np.dtype[np.uint8]]", int]:
@@ -561,12 +651,14 @@ class WebPAnimDecoder:
     def frames(
         self,
     ) -> Generator[Tuple["np.ndarray[Any, np.dtype[np.uint8]]", int], None, None]:
+        """Yield decoded animation frames."""
         while self.has_more_frames():
             arr, timestamp_ms = self.decode_frame()
             yield arr, timestamp_ms
 
     @staticmethod
     def new(webp_data: WebPData, dec_opts: Optional[WebPAnimDecoderOptions] = None) -> "WebPAnimDecoder":
+        """Create a new wrapper instance."""
         if dec_opts is None:
             dec_opts = WebPAnimDecoderOptions.new()
         ptr = lib.WebPAnimDecoderNew(webp_data.ptr, dec_opts.ptr)
@@ -657,7 +749,7 @@ def mimwrite(
 
     Args:
         file_path (str): File to save to.
-        imgs (list of np.ndarray): Image data to save.
+        arrs (list of np.ndarray): Image data to save.
         fps (float): Animation speed in frames per second.
         loop_count (int, optional): Number of times to repeat the animation.
             0 = infinite.
