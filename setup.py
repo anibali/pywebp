@@ -1,9 +1,9 @@
-import os
 import sys
+from pathlib import Path
 
 from setuptools import setup
 
-sys.path.append(os.path.join(os.path.dirname(__file__)))
+sys.path.append(str(Path(__file__).parent))
 
 
 if __name__ == "__main__":
