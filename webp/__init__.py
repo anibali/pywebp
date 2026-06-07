@@ -25,10 +25,10 @@ class WebPColorMode(Enum):
     ARGB = lib.MODE_ARGB
     RGBA_4444 = lib.MODE_RGBA_4444
     RGB_565 = lib.MODE_RGB_565
-    rgbA = lib.MODE_rgbA
-    bgrA = lib.MODE_bgrA
+    rgbA = lib.MODE_rgbA  # noqa: N815
+    bgrA = lib.MODE_bgrA  # noqa: N815
     Argb = lib.MODE_Argb
-    rgbA_4444 = lib.MODE_rgbA_4444
+    rgbA_4444 = lib.MODE_rgbA_4444  # noqa: N815
     YUV = lib.MODE_YUV
     YUVA = lib.MODE_YUVA
     LAST = lib.MODE_LAST

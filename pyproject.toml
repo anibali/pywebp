@@ -63,7 +63,6 @@ ignore = [
     "D", # docstring coverage/style.
     "EM", # exception message style.
     "FBT", # boolean positional argument API style.
-    "N", # naming conventions for external/CFFI APIs.
     "PLR", # pylint refactor rules.
     "S", # flake8-bandit security checks.
     "TRY", # exception style.

@@ -10,7 +10,7 @@ import webp
 
 
 class TestWebP:
-    def test_WebPPicture(self):
+    def test_webp_picture(self):
         pic = webp.WebPPicture.new(32, 32)
         del pic
 
