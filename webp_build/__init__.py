@@ -1,7 +1,7 @@
 import logging
 
 
-def _create_logger():
+def _create_logger() -> logging.Logger:
     logger = logging.getLogger(__name__)
     logger.propagate = False
     ch = logging.StreamHandler()

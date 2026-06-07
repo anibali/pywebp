@@ -10,7 +10,7 @@ import webp
 
 
 class TestWebP:
-    def test_webp_picture(self):
+    def test_webp_picture(self) -> None:
         pic = webp.WebPPicture.new(32, 32)
         del pic
 
@@ -18,7 +18,7 @@ class TestWebP:
         pic = webp.WebPPicture.from_pil(img)
         del pic
 
-    def test_image(self):
+    def test_image(self) -> None:
         img = Image.new("RGB", (32, 16))
         draw = ImageDraw.Draw(img)
         draw.rectangle((0, 0, 7, 15), fill=(255, 0, 0))
@@ -39,7 +39,7 @@ class TestWebP:
                 expected = np.asarray(img, dtype=np.uint8)
                 assert_array_equal(arr, expected)
 
-    def test_anim(self):
+    def test_anim(self) -> None:
         imgs = []
         width = 256
         height = 64
@@ -76,12 +76,12 @@ class TestWebP:
                     expected = np.asarray(imgs[i], dtype=np.uint8)
                     assert_array_equal(arr, expected)
 
-    def test_default_enc_opts(self):
+    def test_default_enc_opts(self) -> None:
         enc = webp.WebPAnimEncoder.new(64, 64)
         assert not enc.enc_opts.minimize_size
         assert not enc.enc_opts.allow_mixed
 
-    def test_anim_simple(self):
+    def test_anim_simple(self) -> None:
         imgs = []
         width = 256
         height = 64
@@ -105,7 +105,7 @@ class TestWebP:
                 expected = np.asarray(img, dtype=np.uint8)
                 assert_array_equal(actual, expected)
 
-    def test_anim_loop_count(self):
+    def test_anim_loop_count(self) -> None:
         imgs = []
         width = 256
         height = 64
@@ -133,7 +133,7 @@ class TestWebP:
     # WebP combines adjacent duplicate frames and adjusts timestamps
     # accordingly, resulting in unevenly spaced frames. By specifying the fps
     # while loading we can return evenly spaced frames.
-    def test_anim_simple_resample(self):
+    def test_anim_simple_resample(self) -> None:
         width = 256
         height = 64
         img1 = Image.new("RGB", (width, height))
@@ -155,7 +155,7 @@ class TestWebP:
 
             assert len(dec_imgs) == 4
 
-    def test_image_simple(self):
+    def test_image_simple(self) -> None:
         width = 256
         height = 64
         img = Image.new("RGB", (width, height))
@@ -173,7 +173,7 @@ class TestWebP:
             expected = np.asarray(img, dtype=np.uint8)
             assert_array_equal(actual, expected)
 
-    def test_image_target_size(self):
+    def test_image_target_size(self) -> None:
         rng = np.random.RandomState(42)
         img = Image.fromarray(rng.randint(0, 256, size=(128, 128, 3), dtype=np.uint8))
 
@@ -183,7 +183,7 @@ class TestWebP:
             webp.save_image(img, file_name, target_size=5000, passes=6)
             assert file_name.stat().st_size <= 5000
 
-    def test_image_palette(self, image_bars_palette):
+    def test_image_palette(self, image_bars_palette: Image.Image) -> None:
         with TemporaryDirectory() as tmpdir:
             file_name = Path(tmpdir) / "image.webp"
 
@@ -196,7 +196,7 @@ class TestWebP:
             expected = np.asarray(image_bars_rgba, dtype=np.uint8)
             assert_array_equal(actual, expected)
 
-    def test_image_palette_opaque(self, image_bars_palette_opaque):
+    def test_image_palette_opaque(self, image_bars_palette_opaque: Image.Image) -> None:
         with TemporaryDirectory() as tmpdir:
             file_name = Path(tmpdir) / "image.webp"
 
@@ -209,7 +209,7 @@ class TestWebP:
             expected = np.asarray(image_bars_rgb, dtype=np.uint8)
             assert_array_equal(actual, expected)
 
-    def test_anim_image_palette(self, image_bars_palette):
+    def test_anim_image_palette(self, image_bars_palette: Image.Image) -> None:
         with TemporaryDirectory() as tmpdir:
             file_name = Path(tmpdir) / "image.webp"
 
@@ -222,7 +222,7 @@ class TestWebP:
             expected = np.asarray(image_bars_rgba, dtype=np.uint8)
             assert_array_equal(actual, expected)
 
-    def test_greyscale_save_image(self):
+    def test_greyscale_save_image(self) -> None:
         width = 256
         height = 64
         img1 = Image.new("L", (width, height))
@@ -232,7 +232,7 @@ class TestWebP:
                 webp.save_image(img1, file_name)
             assert str(ex_info.value) == "unsupported image mode: L"
 
-    def test_picture_from_bad_array_shape(self):
+    def test_picture_from_bad_array_shape(self) -> None:
         with pytest.raises(webp.WebPError) as ex_info:
             webp.WebPPicture.from_numpy(np.ones([2, 2, 2, 2], dtype=np.uint8))
         assert str(ex_info.value) == "unexpected array shape: (2, 2, 2, 2)"
