@@ -314,13 +314,12 @@ class WebPPicture:
                 import_func = lib.WebPPictureImportRGBA
             else:
                 raise WebPError("cannot infer color mode from array of shape " + repr(arr.shape))
+        elif pilmode == "RGB":
+            import_func = lib.WebPPictureImportRGB
+        elif pilmode == "RGBA":
+            import_func = lib.WebPPictureImportRGBA
         else:
-            if pilmode == "RGB":
-                import_func = lib.WebPPictureImportRGB
-            elif pilmode == "RGBA":
-                import_func = lib.WebPPictureImportRGBA
-            else:
-                raise WebPError("unsupported image mode: " + pilmode)
+            raise WebPError("unsupported image mode: " + pilmode)
 
         ptr.height, ptr.width = arr.shape[:2]
         pixels = ffi.cast("uint8_t*", ffi.from_buffer(arr))
@@ -664,7 +663,6 @@ def mimread(
     Returns:
         list of np.ndarray: The decoded image data.
     """
-
     if pilmode == "RGBA":
         color_mode = WebPColorMode.RGBA
     elif pilmode == "RGBa":
