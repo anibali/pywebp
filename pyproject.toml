@@ -61,12 +61,11 @@ ignore = [
     # Existing codebase cleanup deferred after running safe autofixes.
     "ANN", # type annotation strictness.
     "D", # docstring coverage/style.
-    "PLR", # pylint refactor rules.
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "conanfile.py" = ["S101"]
-"tests/**/*.py" = ["S101"]
+"tests/**/*.py" = ["PLR2004", "S101"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
