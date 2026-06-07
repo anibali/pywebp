@@ -26,6 +26,20 @@ jobs:
           path: ./dist/webp-*.tar.gz
           retention-days: 7
 
+  lint-format:
+    name: Lint and format check
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: 3.8
+      - uses: astral-sh/setup-uv@v8.2.0
+      - name: Check formatting
+        run: uv run --frozen --group dev ruff format --check .
+      - name: Lint
+        run: uv run --frozen --group dev ruff check .
+
   type-check:
     name: Type check
     runs-on: ubuntu-24.04
@@ -65,6 +79,7 @@ jobs:
     name: Build ${{ matrix.cibw_build }} wheels
     needs:
       - test-sdist
+      - lint-format
       - type-check
     runs-on: ${{ matrix.os }}
     strategy:
