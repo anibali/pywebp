@@ -74,13 +74,18 @@ def install_libwebp(arch: str) -> Dict[Any, Any]:
     ):
         build.append("cmake*")
 
-    subprocess.run(["conan", "profile", "detect", "-f"], check=True)
+    conan_path = shutil.which("conan")
+    if conan_path is None:
+        msg = "conan executable not found"
+        raise RuntimeError(msg)
+
+    subprocess.run([conan_path, "profile", "detect", "-f"], check=True)  # noqa: S603
 
     conan_output = Path("conan_output") / arch
 
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: S603
         [
-            "conan",
+            conan_path,
             "install",
             *[x for s in settings for x in ("-s", s)],
             *[x for b in build for x in ("-b", b)],
