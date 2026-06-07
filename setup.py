@@ -1,3 +1,5 @@
+"""Setuptools entry point for building the WebP extension."""
+
 import sys
 from pathlib import Path
 

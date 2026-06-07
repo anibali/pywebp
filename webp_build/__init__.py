@@ -1,3 +1,5 @@
+"""Build helpers for the WebP extension."""
+
 import logging
 
 
