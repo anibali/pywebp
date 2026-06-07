@@ -91,10 +91,10 @@ class WebPConfig:
     def new(
         preset: WebPPreset = WebPPreset.DEFAULT,
         quality: Optional[float] = None,
+        *,
         lossless: bool = False,
         lossless_preset: Optional[int] = None,
         method: Optional[int] = None,
-        *,
         target_size: Optional[int] = None,
         passes: Optional[int] = None,
     ) -> "WebPConfig":
@@ -410,7 +410,7 @@ class WebPAnimEncoderOptions:
         self.ptr.allow_mixed = 1 if allow_mixed else 0
 
     @staticmethod
-    def new(minimize_size: bool = False, allow_mixed: bool = False) -> "WebPAnimEncoderOptions":
+    def new(*, minimize_size: bool = False, allow_mixed: bool = False) -> "WebPAnimEncoderOptions":
         ptr = ffi.new("WebPAnimEncoderOptions*")
         if lib.WebPAnimEncoderOptionsInit(ptr) == 0:
             msg = "version mismatch"
@@ -480,7 +480,7 @@ class WebPAnimDecoderOptions:
         self.ptr.use_threads = 1 if use_threads else 0
 
     @staticmethod
-    def new(use_threads: bool = False, color_mode: WebPColorMode = WebPColorMode.RGBA) -> "WebPAnimDecoderOptions":
+    def new(*, use_threads: bool = False, color_mode: WebPColorMode = WebPColorMode.RGBA) -> "WebPAnimDecoderOptions":
         ptr = ffi.new("WebPAnimDecoderOptions*")
         if lib.WebPAnimDecoderOptionsInit(ptr) == 0:
             msg = "version mismatch"
@@ -666,6 +666,7 @@ def mimwrite(
 def mimread(
     file_path: str,
     fps: Optional[float] = None,
+    *,
     use_threads: bool = True,
     pilmode: str = "RGBA",
 ) -> List["np.ndarray[Any, np.dtype[np.uint8]]"]:
