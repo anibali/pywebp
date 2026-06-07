@@ -5,10 +5,10 @@ from conan import ConanFile
 
 class LibwebpRecipe(ConanFile):
     def requirements(self) -> None:
-        assert self.requires is not None
+        assert self.requires is not None  # noqa: S101
         self.requires("libwebp/1.3.2")
 
     def build_requirements(self) -> None:
         if not shutil.which("cmake"):
-            assert self.tool_requires is not None
+            assert self.tool_requires is not None  # noqa: S101
             self.tool_requires("cmake/[>=3.5]")

@@ -63,8 +63,11 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"conanfile.py" = ["S101"]
-"tests/**/*.py" = ["PLR2004", "S101"]
+"tests/**/*.py" = [
+    "D", # undocumented-*
+    "PLR2004", # magic-value-comparison
+    "S101", # assert
+]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
