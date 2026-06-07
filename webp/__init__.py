@@ -1,8 +1,8 @@
 from enum import Enum
+from typing import Any, Generator, List, Optional, Tuple
 
 import numpy as np
 from PIL import Image
-from typing import Any, Generator, List, Optional, Tuple
 
 from webp._webp import ffi, lib
 
@@ -165,12 +165,9 @@ class WebPData:
         return self.ptr.size
 
     def buffer(self) -> bytes:
-        buf = ffi.buffer(self._data_ref, self.size)
-        return buf
+        return ffi.buffer(self._data_ref, self.size)
 
-    def decode(
-        self, color_mode: WebPColorMode = WebPColorMode.RGBA
-    ) -> "np.ndarray[Any, np.dtype[np.uint8]]":
+    def decode(self, color_mode: WebPColorMode = WebPColorMode.RGBA) -> "np.ndarray[Any, np.dtype[np.uint8]]":
         dec_config = WebPDecoderConfig.new()
         dec_config.read_features(self)
 
@@ -192,7 +189,7 @@ class WebPData:
         ):
             bytes_per_pixel = 2
         else:
-            raise WebPError("unsupported color mode: {}".format(str(color_mode)))
+            raise WebPError(f"unsupported color mode: {color_mode!s}")
 
         arr = np.empty(
             (dec_config.input.height, dec_config.input.width, bytes_per_pixel),
@@ -204,10 +201,7 @@ class WebPData:
         dec_config.output.u.RGBA.stride = dec_config.input.width * bytes_per_pixel
         dec_config.output.is_external_memory = 1
 
-        if (
-            lib.WebPDecode(self.ptr.bytes, self.size, dec_config.ptr)
-            != lib.VP8_STATUS_OK
-        ):
+        if lib.WebPDecode(self.ptr.bytes, self.size, dec_config.ptr) != lib.VP8_STATUS_OK:
             raise WebPError("failed to decode")
         lib.WebPFreeDecBuffer(ffi.addressof(dec_config.ptr, "output"))
 
@@ -301,9 +295,7 @@ class WebPPicture:
         return WebPPicture(ptr)
 
     @staticmethod
-    def from_numpy(
-        arr: "np.ndarray[Any, np.dtype[np.uint8]]", *, pilmode: Optional[str] = None
-    ) -> "WebPPicture":
+    def from_numpy(arr: "np.ndarray[Any, np.dtype[np.uint8]]", *, pilmode: Optional[str] = None) -> "WebPPicture":
         ptr = ffi.new("WebPPicture*")
         if lib.WebPPictureInit(ptr) == 0:
             raise WebPError("version mismatch")
@@ -321,9 +313,7 @@ class WebPPicture:
             elif bytes_per_pixel == 4:
                 import_func = lib.WebPPictureImportRGBA
             else:
-                raise WebPError(
-                    "cannot infer color mode from array of shape " + repr(arr.shape)
-                )
+                raise WebPError("cannot infer color mode from array of shape " + repr(arr.shape))
         else:
             if pilmode == "RGB":
                 import_func = lib.WebPPictureImportRGB
@@ -368,10 +358,7 @@ class WebPDecoderConfig:
 
     def read_features(self, webp_data: WebPData) -> None:
         input_ptr = ffi.addressof(self.ptr, "input")
-        if (
-            lib.WebPGetFeatures(webp_data.ptr.bytes, webp_data.size, input_ptr)
-            != lib.VP8_STATUS_OK
-        ):
+        if lib.WebPGetFeatures(webp_data.ptr.bytes, webp_data.size, input_ptr) != lib.VP8_STATUS_OK:
             raise WebPError("failed to read features")
 
     @staticmethod
@@ -411,9 +398,7 @@ class WebPAnimEncoderOptions:
         self.ptr.allow_mixed = 1 if allow_mixed else 0
 
     @staticmethod
-    def new(
-        minimize_size: bool = False, allow_mixed: bool = False
-    ) -> "WebPAnimEncoderOptions":
+    def new(minimize_size: bool = False, allow_mixed: bool = False) -> "WebPAnimEncoderOptions":
         ptr = ffi.new("WebPAnimEncoderOptions*")
         if lib.WebPAnimEncoderOptionsInit(ptr) == 0:
             raise WebPError("version mismatch")
@@ -431,9 +416,7 @@ class WebPAnimEncoder:
     def __del__(self) -> None:
         lib.WebPAnimEncoderDelete(self.ptr)
 
-    def encode_frame(
-        self, frame: WebPPicture, timestamp_ms: int, config: Optional[WebPConfig] = None
-    ):
+    def encode_frame(self, frame: WebPPicture, timestamp_ms: int, config: Optional[WebPConfig] = None):
         """Add a frame to the animation.
 
         Args:
@@ -455,9 +438,7 @@ class WebPAnimEncoder:
         return _webp_data.done()
 
     @staticmethod
-    def new(
-        width: int, height: int, enc_opts: Optional[WebPAnimEncoderOptions] = None
-    ) -> "WebPAnimEncoder":
+    def new(width: int, height: int, enc_opts: Optional[WebPAnimEncoderOptions] = None) -> "WebPAnimEncoder":
         if enc_opts is None:
             enc_opts = WebPAnimEncoderOptions.new()
         ptr = lib.WebPAnimEncoderNew(width, height, enc_opts.ptr)
@@ -485,9 +466,7 @@ class WebPAnimDecoderOptions:
         self.ptr.use_threads = 1 if use_threads else 0
 
     @staticmethod
-    def new(
-        use_threads: bool = False, color_mode: WebPColorMode = WebPColorMode.RGBA
-    ) -> "WebPAnimDecoderOptions":
+    def new(use_threads: bool = False, color_mode: WebPColorMode = WebPColorMode.RGBA) -> "WebPAnimDecoderOptions":
         ptr = ffi.new("WebPAnimDecoderOptions*")
         if lib.WebPAnimDecoderOptionsInit(ptr) == 0:
             raise WebPError("version mismatch")
@@ -524,9 +503,7 @@ class WebPAnimInfo:
 
 
 class WebPAnimDecoder:
-    def __init__(
-        self, ptr: Any, dec_opts: WebPAnimDecoderOptions, anim_info: WebPAnimInfo
-    ) -> None:
+    def __init__(self, ptr: Any, dec_opts: WebPAnimDecoderOptions, anim_info: WebPAnimInfo) -> None:
         self.ptr = ptr
         self.dec_opts = dec_opts
         self.anim_info = anim_info
@@ -567,9 +544,7 @@ class WebPAnimDecoder:
             yield arr, timestamp_ms
 
     @staticmethod
-    def new(
-        webp_data: WebPData, dec_opts: Optional[WebPAnimDecoderOptions] = None
-    ) -> "WebPAnimDecoder":
+    def new(webp_data: WebPData, dec_opts: Optional[WebPAnimDecoderOptions] = None) -> "WebPAnimDecoder":
         if dec_opts is None:
             dec_opts = WebPAnimDecoderOptions.new()
         ptr = lib.WebPAnimDecoderNew(webp_data.ptr, dec_opts.ptr)
@@ -600,9 +575,7 @@ def imwrite(
     pic.save(file_path, config)
 
 
-def imread(
-    file_path: str, pilmode: str = "RGBA"
-) -> "np.ndarray[Any, np.dtype[np.uint8]]":
+def imread(file_path: str, pilmode: str = "RGBA") -> "np.ndarray[Any, np.dtype[np.uint8]]":
     """Load from file and decode numpy array with WebP.
 
     Args:
@@ -623,8 +596,7 @@ def imread(
 
     with open(file_path, "rb") as f:
         webp_data = WebPData.from_buffer(f.read())
-        arr = webp_data.decode(color_mode=color_mode)
-    return arr
+        return webp_data.decode(color_mode=color_mode)
 
 
 def _mimwrite_pics(
@@ -704,13 +676,11 @@ def mimread(
     else:
         raise WebPError("unsupported color mode: " + pilmode)
 
-    arrs: List["np.ndarray[Any, np.dtype[np.uint8]]"] = []
+    arrs: List[np.ndarray[Any, np.dtype[np.uint8]]] = []
 
     with open(file_path, "rb") as f:
         webp_data = WebPData.from_buffer(f.read())
-        dec_opts = WebPAnimDecoderOptions.new(
-            use_threads=use_threads, color_mode=color_mode
-        )
+        dec_opts = WebPAnimDecoderOptions.new(use_threads=use_threads, color_mode=color_mode)
         dec = WebPAnimDecoder.new(webp_data, dec_opts)
         eps = 1e-7
 

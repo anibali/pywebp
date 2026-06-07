@@ -3,8 +3,8 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 import pytest
-from PIL import Image, ImageDraw
 from numpy.testing import assert_array_equal
+from PIL import Image, ImageDraw
 
 import webp
 
@@ -72,7 +72,7 @@ class TestWebP:
                 dec_opts = webp.WebPAnimDecoderOptions.new()
                 dec = webp.WebPAnimDecoder.new(webp_data, dec_opts)
                 assert dec.anim_info.frame_count == 4
-                for i, (arr, t) in enumerate(dec.frames()):
+                for i, (arr, _t) in enumerate(dec.frames()):
                     expected = np.asarray(imgs[i], dtype=np.uint8)
                     assert_array_equal(arr, expected)
 
@@ -124,9 +124,7 @@ class TestWebP:
 
             with open(file_name, "rb") as f:
                 webp_data = webp.WebPData.from_buffer(f.read())
-                dec_opts = webp.WebPAnimDecoderOptions.new(
-                    use_threads=True, color_mode=webp.WebPColorMode.RGBA
-                )
+                dec_opts = webp.WebPAnimDecoderOptions.new(use_threads=True, color_mode=webp.WebPColorMode.RGBA)
                 dec = webp.WebPAnimDecoder.new(webp_data, dec_opts)
                 assert dec.anim_info.loop_count == 2
                 assert dec.anim_info.width == width
