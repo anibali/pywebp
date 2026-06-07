@@ -1,8 +1,9 @@
 """Python bindings for the WebP image format."""
 
 from enum import Enum
+from os import PathLike
 from pathlib import Path
-from typing import Any, Generator, List, Optional, Tuple
+from typing import Any, Generator, List, Optional, Tuple, Union
 
 import numpy as np
 from PIL import Image
@@ -14,6 +15,9 @@ COLOR_DIMENSIONS = 3
 PACKED_COLOR_BYTES = 2
 RGB_CHANNELS = 3
 RGBA_CHANNELS = 4
+
+FilePath = Union[str, PathLike]
+_Pointer = Any
 
 
 class WebPPreset(Enum):
@@ -55,7 +59,7 @@ class WebPConfig:
 
     DEFAULT_QUALITY: float = 75.0
 
-    def __init__(self, ptr: object) -> None:
+    def __init__(self, ptr: _Pointer) -> None:
         """Initialize the wrapper."""
         self.ptr = ptr
 
@@ -189,7 +193,7 @@ class WebPConfig:
 class WebPData:
     """Represent encoded WebP data."""
 
-    def __init__(self, ptr: object, data_ref: object) -> None:
+    def __init__(self, ptr: _Pointer, data_ref: _Pointer) -> None:
         """Initialize the wrapper."""
         self.ptr = ptr
         self._data_ref = data_ref
@@ -266,7 +270,7 @@ class _WebPData:
         lib.WebPDataInit(self.ptr)
 
     # Call this after the struct has been filled in
-    def done(self, free_func: object = lib.WebPFree) -> WebPData:
+    def done(self, free_func: _Pointer = lib.WebPFree) -> WebPData:
         """Run done."""
         if self.ptr is None:
             msg = "_WebPData.done() called after ownership was already transferred"
@@ -279,7 +283,7 @@ class _WebPData:
 class WebPMemoryWriter:
     """Wrap a WebP memory writer."""
 
-    def __init__(self, ptr: object) -> None:
+    def __init__(self, ptr: _Pointer) -> None:
         """Initialize the wrapper."""
         self.ptr = ptr
 
@@ -314,7 +318,7 @@ class WebPMemoryWriter:
 class WebPPicture:
     """Represent a WebP picture."""
 
-    def __init__(self, ptr: object) -> None:
+    def __init__(self, ptr: _Pointer) -> None:
         """Initialize the wrapper."""
         self.ptr = ptr
 
@@ -333,7 +337,7 @@ class WebPPicture:
             raise WebPError("encoding error: " + self.ptr.error_code)
         return writer.to_webp_data()
 
-    def save(self, file_path: str, config: Optional[WebPConfig] = None) -> None:
+    def save(self, file_path: FilePath, config: Optional[WebPConfig] = None) -> None:
         """Save the picture to a WebP file."""
         buf = self.encode(config).buffer()
         with Path(file_path).open("wb") as f:
@@ -403,22 +407,22 @@ class WebPPicture:
 class WebPDecoderConfig:
     """Wrap a WebP decoder configuration."""
 
-    def __init__(self, ptr: object) -> None:
+    def __init__(self, ptr: _Pointer) -> None:
         """Initialize the wrapper."""
         self.ptr = ptr
 
     @property
-    def input(self) -> object:
+    def input(self) -> _Pointer:
         """Return decoder input settings."""
         return self.ptr.input
 
     @property
-    def output(self) -> object:
+    def output(self) -> _Pointer:
         """Return decoder output settings."""
         return self.ptr.output
 
     @property
-    def options(self) -> object:
+    def options(self) -> _Pointer:
         """Return decoder options."""
         return self.ptr.options
 
@@ -442,7 +446,7 @@ class WebPDecoderConfig:
 class WebPAnimEncoderOptions:
     """Represent WebP animation encoder options."""
 
-    def __init__(self, ptr: object) -> None:
+    def __init__(self, ptr: _Pointer) -> None:
         """Initialize the wrapper."""
         self.ptr = ptr
 
@@ -492,7 +496,7 @@ class WebPAnimEncoderOptions:
 class WebPAnimEncoder:
     """Encode animated WebP images."""
 
-    def __init__(self, ptr: object, enc_opts: WebPAnimEncoderOptions) -> None:
+    def __init__(self, ptr: _Pointer, enc_opts: WebPAnimEncoderOptions) -> None:
         """Initialize the wrapper."""
         self.ptr = ptr
         self.enc_opts = enc_opts
@@ -536,7 +540,7 @@ class WebPAnimEncoder:
 class WebPAnimDecoderOptions:
     """Represent WebP animation decoder options."""
 
-    def __init__(self, ptr: object) -> None:
+    def __init__(self, ptr: _Pointer) -> None:
         """Initialize the wrapper."""
         self.ptr = ptr
 
@@ -576,7 +580,7 @@ class WebPAnimDecoderOptions:
 class WebPAnimInfo:
     """Represent WebP animation metadata."""
 
-    def __init__(self, ptr: object) -> None:
+    def __init__(self, ptr: _Pointer) -> None:
         """Initialize the wrapper."""
         self.ptr = ptr
 
@@ -610,7 +614,7 @@ class WebPAnimInfo:
 class WebPAnimDecoder:
     """Decode animated WebP images."""
 
-    def __init__(self, ptr: object, dec_opts: WebPAnimDecoderOptions, anim_info: WebPAnimInfo) -> None:
+    def __init__(self, ptr: _Pointer, dec_opts: WebPAnimDecoderOptions, anim_info: WebPAnimInfo) -> None:
         """Initialize the wrapper."""
         self.ptr = ptr
         self.dec_opts = dec_opts
@@ -673,10 +677,10 @@ class WebPAnimDecoder:
 
 
 def imwrite(
-    file_path: str,
+    file_path: FilePath,
     arr: "np.ndarray[Any, np.dtype[np.uint8]]",
     pilmode: Optional[str] = None,
-    **kwargs: object,
+    **kwargs: Any,  # noqa: ANN401
 ) -> None:
     """Encode numpy array image with WebP and save to file.
 
@@ -691,7 +695,7 @@ def imwrite(
     pic.save(file_path, config)
 
 
-def imread(file_path: str, pilmode: str = "RGBA") -> "np.ndarray[Any, np.dtype[np.uint8]]":
+def imread(file_path: FilePath, pilmode: str = "RGBA") -> "np.ndarray[Any, np.dtype[np.uint8]]":
     """Load from file and decode numpy array with WebP.
 
     Args:
@@ -716,11 +720,11 @@ def imread(file_path: str, pilmode: str = "RGBA") -> "np.ndarray[Any, np.dtype[n
 
 
 def _mimwrite_pics(
-    file_path: str,
+    file_path: FilePath,
     pics: List[WebPPicture],
     fps: float = 30.0,
     loop_count: Optional[int] = None,
-    **kwargs: object,
+    **kwargs: Any,  # noqa: ANN401
 ) -> None:
     enc_opts = WebPAnimEncoderOptions.new()
     if loop_count is not None:
@@ -738,12 +742,12 @@ def _mimwrite_pics(
 
 
 def mimwrite(
-    file_path: str,
+    file_path: FilePath,
     arrs: "List[np.ndarray[Any, np.dtype[np.uint8]]]",
     fps: float = 30.0,
     loop_count: Optional[int] = None,
     pilmode: Optional[str] = None,
-    **kwargs: object,
+    **kwargs: Any,  # noqa: ANN401
 ) -> None:
     """Encode a sequence of PIL Images with WebP and save to file.
 
@@ -762,7 +766,7 @@ def mimwrite(
 
 
 def mimread(
-    file_path: str,
+    file_path: FilePath,
     fps: Optional[float] = None,
     *,
     use_threads: bool = True,
@@ -811,7 +815,11 @@ def mimread(
     return arrs
 
 
-def save_image(img: Image.Image, file_path: str, **kwargs: object) -> None:
+def save_image(
+    img: Image.Image,
+    file_path: FilePath,
+    **kwargs: Any,  # noqa: ANN401
+) -> None:
     """Encode PIL Image with WebP and save to file.
 
     Args:
@@ -824,7 +832,7 @@ def save_image(img: Image.Image, file_path: str, **kwargs: object) -> None:
     pic.save(file_path, config)
 
 
-def load_image(file_path: str, mode: str = "RGBA") -> Image.Image:
+def load_image(file_path: FilePath, mode: str = "RGBA") -> Image.Image:
     """Load from file and decode PIL Image with WebP.
 
     Args:
@@ -838,7 +846,11 @@ def load_image(file_path: str, mode: str = "RGBA") -> Image.Image:
     return Image.fromarray(arr, mode)
 
 
-def save_images(imgs: List[Image.Image], file_path: str, **kwargs: object) -> None:
+def save_images(
+    imgs: List[Image.Image],
+    file_path: FilePath,
+    **kwargs: Any,  # noqa: ANN401
+) -> None:
     """Encode a sequence of PIL Images with WebP and save to file.
 
     Args:
@@ -850,7 +862,11 @@ def save_images(imgs: List[Image.Image], file_path: str, **kwargs: object) -> No
     _mimwrite_pics(file_path, pics, **kwargs)
 
 
-def load_images(file_path: str, mode: str = "RGBA", **kwargs: object) -> List[Image.Image]:
+def load_images(
+    file_path: FilePath,
+    mode: str = "RGBA",
+    **kwargs: Any,  # noqa: ANN401
+) -> List[Image.Image]:
     """Load from file and decode a sequence of PIL Images with WebP.
 
     Args:
