@@ -1,3 +1,5 @@
+import gc
+import weakref
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -236,3 +238,17 @@ class TestWebP:
         with pytest.raises(webp.WebPError) as ex_info:
             webp.WebPPicture.from_numpy(np.ones([2, 2, 2, 2], dtype=np.uint8))
         assert str(ex_info.value) == "unexpected array shape: (2, 2, 2, 2)"
+
+    def test_anim_decoder_keeps_webp_data_alive(self) -> None:
+        enc = webp.WebPAnimEncoder.new(8, 8)
+        enc.encode_frame(webp.WebPPicture.from_pil(Image.new("RGBA", (8, 8))), 0)
+        anim_bytes = bytes(enc.assemble(250).buffer())
+
+        webp_data = webp.WebPData.from_buffer(anim_bytes)
+        ref = weakref.ref(webp_data)
+        dec = webp.WebPAnimDecoder.new(webp_data)
+        del webp_data
+        gc.collect()
+
+        assert ref() is not None
+        assert dec.anim_info.frame_count == 1
