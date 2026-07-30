@@ -614,11 +614,16 @@ class WebPAnimInfo:
 class WebPAnimDecoder:
     """Decode animated WebP images."""
 
-    def __init__(self, ptr: _Pointer, dec_opts: WebPAnimDecoderOptions, anim_info: WebPAnimInfo) -> None:
+    def __init__(
+        self, ptr: _Pointer, dec_opts: WebPAnimDecoderOptions, anim_info: WebPAnimInfo, webp_data: WebPData
+    ) -> None:
         """Initialize the wrapper."""
         self.ptr = ptr
         self.dec_opts = dec_opts
         self.anim_info = anim_info
+        # Never read. Held so the bitstream outlives the decoder, which reads from it
+        # without copying.
+        self._webp_data = webp_data
 
     def __del__(self) -> None:
         """Release owned WebP resources."""
@@ -673,7 +678,7 @@ class WebPAnimDecoder:
         if lib.WebPAnimDecoderGetInfo(ptr, anim_info.ptr) == 0:
             msg = "failed to get animation info"
             raise WebPError(msg)
-        return WebPAnimDecoder(ptr, dec_opts, anim_info)
+        return WebPAnimDecoder(ptr, dec_opts, anim_info, webp_data)
 
 
 def imwrite(
